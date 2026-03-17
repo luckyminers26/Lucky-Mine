@@ -1,0 +1,130 @@
+.stats-page { 
+  min-height:100vh; 
+  background:var(--bg); 
+  font-family:'Syne',sans-serif; 
+  color:var(--text); }
+
+.stats-main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  animation: fadeUp .45s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(18px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── Hero ───────────────────────────────────────────── */
+.stats-hero {
+  position: relative;
+  text-align: center;
+  padding: 2.5rem 1rem 2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.stats-hero__orb {
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(91,94,244,0.25) 0%, transparent 65%);
+  top: -120px; left: 50%; transform: translateX(-50%);
+  filter: blur(50px);
+  pointer-events: none;
+  animation: pulse 6s ease-in-out infinite alternate;
+}
+@keyframes pulse { from{opacity:.6;} to{opacity:1;} }
+
+.stats-hero__label {
+  display: inline-block;
+  font-size: .62rem; font-weight:800; letter-spacing:.18em;
+  color:var(--accent);
+  background:rgba(91,94,244,.1); border:1px solid rgba(91,94,244,.25);
+  border-radius:20px; padding:3px 12px; margin-bottom:.9rem;
+}
+
+.stats-hero__title {
+  font-size:clamp(1.8rem,5vw,2.6rem); font-weight:800;
+  margin:0 0 .5rem; line-height:1.1;
+}
+
+/* ── Big grid ───────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .9rem;
+}
+
+@media (max-width:520px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width:360px) { .stats-grid { grid-template-columns: 1fr; } }
+
+.stats-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color .2s;
+}
+.stats-card:hover { border-color: rgba(255,255,255,.12); }
+
+.stats-card__icon { font-size:1.4rem; line-height:1; margin-bottom:4px; }
+.stats-card__label { font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text); }
+.stats-card__value { font-family:'JetBrains Mono',monospace; font-size:1.35rem; font-weight:600; color:var(--text); line-height:1; }
+.stats-card__sub   { font-size:.62rem; color:var(--text); font-family:'JetBrains Mono',monospace; }
+
+.stats-card--circ    { border-color:rgba(54,211,153,.15);  }
+.stats-card--burned  { border-color:rgba(244,96,91,.15);   }
+.stats-card--staking { border-color:rgba(240,180,41,.15);  }
+.stats-card--circ    .stats-card__value { color:var(--green); }
+.stats-card--burned  .stats-card__value { color:var(--red);   }
+.stats-card--staking .stats-card__value { color:var(--gold);  }
+.stats-card--mined   .stats-card__value { color:var(--accent);}
+
+
+
+.split-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.split-card__pct {
+  font-family:'JetBrains Mono',monospace;
+  font-size:1.8rem; font-weight:700; line-height:1;
+}
+.split-card__label { font-size:.8rem; font-weight:700; }
+.split-card__desc  { font-size:.7rem; color:var(--text); line-height:1.4; }
+
+.split-card--prize   { border-color:rgba(91,94,244,.2);  }
+.split-card--prize   .split-card__pct   { color:var(--accent); }
+.split-card--staking { border-color:rgba(240,180,41,.2); }
+.split-card--staking .split-card__pct  { color:var(--gold);   }
+.split-card--burn    { border-color:rgba(244,96,91,.2);  }
+.split-card--burn    .split-card__pct  { color:var(--red);    }
+
+/* ── Footer ─────────────────────────────────────────── */
+.stats-updated { font-size:.68rem; color:var(--text); text-align:center; margin:0; }
+
+/* ── Loading ────────────────────────────────────────── */
+.stats-loading { display:flex; justify-content:center; padding:4rem; }
+.stats-spinner {
+  display:inline-block; width:32px; height:32px;
+  border:3px solid rgba(255,255,255,.1); border-top-color:var(--accent);
+  border-radius:50%; animation:spin .7s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }

@@ -1,0 +1,263 @@
+/* ── Page ───────────────────────────────────────────── */
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  overflow: hidden;
+  font-family: 'Syne', sans-serif;
+}
+
+/* ── Decorative grid ────────────────────────────────── */
+.login-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  pointer-events: none;
+  z-index: 0;
+}
+.login-grid__cell {
+  border-right: 1px solid rgba(255,255,255,0.025);
+  border-bottom: 1px solid rgba(255,255,255,0.025);
+  animation: cellPulse 8s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 120ms);
+}
+
+@keyframes cellPulse {
+  0%, 100% { background: transparent; }
+  50%       { background: rgba(91,94,244,0.03); }
+}
+
+/* ── Glow orb ───────────────────────────────────────── */
+.login-orb {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+  animation: orbDrift 10s ease-in-out infinite alternate;
+}
+
+@keyframes orbDrift {
+  from { transform: translate(-50%, -55%) scale(1); }
+  to   { transform: translate(-48%, -52%) scale(1.08); }
+}
+
+/* ── Card ───────────────────────────────────────────── */
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  margin: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem 2.5rem 2rem;
+  box-shadow:
+    0 0 0 1px rgba(91,94,244,0.08),
+    0 32px 64px rgba(0,0,0,0.6),
+    0 0 80px rgba(91,94,244,0.08);
+  animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Card Header ────────────────────────────────────── */
+.login-card__header {
+  margin-bottom: 2rem;
+}
+
+.login-card__logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 1.75rem;
+  width: fit-content;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+.login-card__logo:hover { opacity: 1; }
+
+/* ── Tabs ───────────────────────────────────────────── */
+.login-card__tabs {
+  display: flex;
+  gap: 0;
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.login-tab {
+  flex: 1;
+  padding: 0.55rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.login-tab--active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(91,94,244,0.4);
+}
+
+/* ── Form ───────────────────────────────────────────── */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: fieldIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0ms) both;
+}
+
+@keyframes fieldIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.login-field label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.login-field input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.login-field input::placeholder { color: #3a3a50; }
+.login-field input:focus {
+  border-color: var(--accent);
+  background: rgba(91,94,244,0.06);
+  box-shadow: 0 0 0 3px rgba(91,94,244,0.15);
+}
+
+/* ── Error ──────────────────────────────────────────── */
+.login-error {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--error);
+  background: rgba(244,96,91,0.08);
+  border: 1px solid rgba(244,96,91,0.2);
+  border-radius: 6px;
+  padding: 0.55rem 0.8rem;
+  animation: shake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  60%       { transform: translateX(6px); }
+  80%       { transform: translateX(-3px); }
+}
+
+/* ── Submit button ──────────────────────────────────── */
+.login-submit {
+  margin-top: 0.4rem;
+  width: 100%;
+  padding: 0.8rem;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(91,94,244,0.4);
+}
+.login-submit:hover:not(:disabled) {
+  background: #6f72f7;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(91,94,244,0.55);
+}
+.login-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+.login-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ── Spinner ────────────────────────────────────────── */
+.login-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Toggle ─────────────────────────────────────────── */
+.login-toggle {
+  margin: 1.25rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+.login-toggle button {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+.login-toggle button:hover { opacity: 0.8; }
+
+/* ── Responsive ─────────────────────────────────────── */
+@media (max-width: 480px) {
+  .login-card { padding: 2rem 1.5rem 1.75rem; }
+}
