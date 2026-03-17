@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ethers } from 'ethers'
-import { supabase } from '../lib/supabaseClient'
-import { useAuth } from '../contexts/AuthContext2'
+import { supabase } from '../lib/supabaseClient2'
+import { useAuth } from '../contexts/AuthContext'
 import Header from '../components/Header'
 import './Premium.css'
 

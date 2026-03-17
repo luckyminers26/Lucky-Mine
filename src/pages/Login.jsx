@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext2'
+import { useAuth } from '../contexts/AuthContext'
 import './Login.css'
 
 export default function Login() {
@@ -35,7 +35,7 @@ export default function Login() {
         // Aplica código de referral se existir
         const refCode = localStorage.getItem('referral_code')
         if (refCode) {
-          const { supabase } = await import('../lib/supabaseClient')
+          const { supabase } = await import('../lib/supabaseClient2')
           await supabase.rpc('apply_referral', { p_code: refCode })
           localStorage.removeItem('referral_code')
         }

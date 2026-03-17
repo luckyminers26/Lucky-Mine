@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
-import { supabase } from '../lib/supabaseClient'
-import { useAuth } from '../contexts/AuthContext2'
+import { supabase } from '../lib/supabaseClient2'
+import { useAuth } from '../contexts/AuthContext'
 import useMidnightCountdown from '../hooks/useMidnightCountdown'
 import Header from '../components/Header'
 import './Lottery.css'
