@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { Link } from "react-router-dom"
 import { supabase } from '../lib/supabaseClient'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../contexts/AuthContext2'
 import Header from '../components/Header'
 import useMidnightCountdown from '../hooks/useMidnightCountdown'
 import './Home.css'

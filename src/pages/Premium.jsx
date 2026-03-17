@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ethers } from 'ethers'
 import { supabase } from '../lib/supabaseClient'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../contexts/AuthContext2'
 import Header from '../components/Header'
 import './Premium.css'
 
