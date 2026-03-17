@@ -72,16 +72,16 @@ export default function Premium() {
     }
   }
 
-  // ── Pay TKN ─────────────────────────────────────────
-  async function payWithTkn(plan) {
+  // ── Pay LCKM ─────────────────────────────────────────
+  async function payWithLCKM(plan) {
     setError('')
-    setLoading(`${plan}-tkn`)
+    setLoading(`${plan}-LCKM`)
     try {
-      const { data, error } = await supabase.rpc('activate_premium_tkn', { p_plan: plan })
+      const { data, error } = await supabase.rpc('activate_premium_LCKM', { p_plan: plan })
       if (error) throw error
       if (data.error) {
         const msgs = {
-          insufficient_balance: `Saldo insuficiente. Necessário: ${fmt8(data.required)} TKN`,
+          insufficient_balance: `Saldo insuficiente. Necessário: ${fmt8(data.required)} LCKM`,
           already_lifetime: 'Você já tem Premium Vitalício.',
           already_active: 'Plano mensal já ativo.',
           lifetime_slots_full: 'Todas as vagas vitalícias foram preenchidas.',
@@ -182,7 +182,7 @@ export default function Premium() {
         <div className="prem-hero">
           <div className="prem-hero__orb" />
           <h1 className="prem-hero__title">Mine mais.<br />Volte menos.</h1>
-          <p className="prem-hero__sub">Colete 24h de tokens com um clique. Pague em TKN ou USDT.</p>
+          <p className="prem-hero__sub">Colete 24h de tokens com um clique. Pague em LCKM ou USDT.</p>
           {isPremium && (
             <PremiumBadge
               type={profile.premium_type}
@@ -223,18 +223,18 @@ export default function Premium() {
 
               <div className="prem-price-row">
                 <div className="prem-price-row__info">
-                  <span className="prem-price-row__label">Pagar em TKN</span>
+                  <span className="prem-price-row__label">Pagar em LCKM</span>
                   <span className="prem-price-row__note">Tokens são queimados 🔥</span>
                 </div>
                 <div className="prem-price-row__right">
                   <span className="prem-price-row__amount">
-                    {config?.monthly_price_tkn != null ? fmt8(config.monthly_price_tkn) : '…'} TKN
+                    {config?.monthly_price_LCKM != null ? fmt8(config.monthly_price_LCKM) : '…'} LCKM
                   </span>
-                  <button className="prem-btn prem-btn--tkn"
-                    onClick={() => payWithTkn('monthly')}
+                  <button className="prem-btn prem-btn--LCKM"
+                    onClick={() => payWithLCKM('monthly')}
                     disabled={!!loading || isPremium}
                   >
-                    {loading === 'monthly-tkn'
+                    {loading === 'monthly-LCKM'
                       ? <><span className="prem-spinner" /> Queimando…</>
                       : isPremium ? '✓ Ativo' : 'Ativar'}
                   </button>
@@ -286,18 +286,18 @@ export default function Premium() {
 
               <div className="prem-price-row">
                 <div className="prem-price-row__info">
-                  <span className="prem-price-row__label">Pagar em TKN</span>
+                  <span className="prem-price-row__label">Pagar em LCKM</span>
                   <span className="prem-price-row__note">Tokens são queimados 🔥</span>
                 </div>
                 <div className="prem-price-row__right">
                   <span className="prem-price-row__amount">
-                    {config?.lifetime_price_tkn != null ? fmt8(config.lifetime_price_tkn) : '…'} TKN
+                    {config?.lifetime_price_LCKM != null ? fmt8(config.lifetime_price_LCKM) : '…'} LCKM
                   </span>
-                  <button className="prem-btn prem-btn--tkn"
-                    onClick={() => payWithTkn('lifetime')}
+                  <button className="prem-btn prem-btn--LCKM"
+                    onClick={() => payWithLCKM('lifetime')}
                     disabled={!!loading || isPremium || slotsLeft === 0}
                   >
-                    {loading === 'lifetime-tkn'
+                    {loading === 'lifetime-LCKM'
                       ? <><span className="prem-spinner" /> Queimando…</>
                       : isPremium ? '✓ Ativo' : slotsLeft === 0 ? 'Esgotado' : 'Ativar'}
                   </button>

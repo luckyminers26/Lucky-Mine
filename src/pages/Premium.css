@@ -111,10 +111,10 @@
 }
 .prem-btn:disabled { opacity:.55; cursor:not-allowed; transform:none !important; }
 
-.prem-btn--tkn {
+.prem-btn--LCKM {
   background:rgba(244,96,91,.1); border:1px solid rgba(244,96,91,.3); color:var(--red);
 }
-.prem-btn--tkn:hover:not(:disabled) { background:rgba(244,96,91,.18); border-color:var(--red); }
+.prem-btn--LCKM:hover:not(:disabled) { background:rgba(244,96,91,.18); border-color:var(--red); }
 
 .prem-btn--usdt {
   background:rgba(91,94,244,.12); border:1px solid rgba(91,94,244,.3); color:var(--accent);

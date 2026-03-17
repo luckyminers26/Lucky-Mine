@@ -5,7 +5,7 @@ import Header from '../components/Header'
 import './Referral.css'
 
 const MAX_REFERRALS = 10
-const REWARD_TKN    = 1
+const REWARD_LCKM    = 1
 const LOTTERY_REQ   = 10
 
 export default function Referral() {
@@ -79,7 +79,7 @@ export default function Referral() {
   const rewarded    = referrals.filter(r => r.rewarded).length
   const pending     = referrals.filter(r => !r.rewarded).length
   const slots       = MAX_REFERRALS - referrals.length
-  const totalEarned = rewarded * REWARD_TKN
+  const totalEarned = rewarded * REWARD_LCKM
 
   return (
     <div className="ref-page">
@@ -93,7 +93,7 @@ export default function Referral() {
           <h1 className="ref-hero__title">Convide.<br />Ganhe.</h1>
           <p className="ref-hero__sub">
             Convide até <strong>{MAX_REFERRALS}</strong> amigos.
-            Ganhe <strong>{REWARD_TKN} TKN</strong> por cada um que jogar
+            Ganhe <strong>{REWARD_LCKM} LCKM</strong> por cada um que jogar
             na loteria <strong>{LOTTERY_REQ} vezes</strong>.
           </p>
         </div>
@@ -115,7 +115,7 @@ export default function Referral() {
             <span className="ref-stat__value">{pending}</span>
           </div>
           <div className="ref-stat">
-            <span className="ref-stat__label">TKN ganhos</span>
+            <span className="ref-stat__label">LCKM ganhos</span>
             <span className="ref-stat__value ref-stat__value--mono">{totalEarned}.00000000</span>
           </div>
         </div>
@@ -176,7 +176,7 @@ export default function Referral() {
                         </span>
                       </div>
                       <span className={`ref-item__status ${r.rewarded ? 'ref-item__status--done' : 'ref-item__status--pending'}`}>
-                        {r.rewarded ? `✓ +${REWARD_TKN} TKN` : 'Pendente'}
+                        {r.rewarded ? `✓ +${REWARD_LCKM} LCKM` : 'Pendente'}
                       </span>
                     </div>
                     <div className="ref-progress">
@@ -196,7 +196,7 @@ export default function Referral() {
             <li>Copie seu link e envie para um amigo</li>
             <li>O amigo se cadastra usando seu link</li>
             <li>Quando ele jogar na loteria {LOTTERY_REQ} vezes…</li>
-            <li>Você recebe <strong>{REWARD_TKN} TKN</strong> automaticamente 🎉</li>
+            <li>Você recebe <strong>{REWARD_LCKM} LCKM</strong> automaticamente 🎉</li>
           </ol>
         </div>
 

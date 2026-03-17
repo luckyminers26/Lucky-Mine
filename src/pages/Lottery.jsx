@@ -14,7 +14,7 @@ function formatBalance(val) {
 
 function TicketGrid({ total, myTicket, winners }) {
   const winSet = new Set(winners ?? [])
-  const cells  = Array.from({ length: Math.min(total, 120) }, (_, i) => i + 1)
+  const cells = Array.from({ length: Math.min(total, 120) }, (_, i) => i + 1)
   return (
     <div className="ticket-grid">
       {total === 0 ? (
@@ -26,8 +26,8 @@ function TicketGrid({ total, myTicket, winners }) {
               key={n}
               className={[
                 'ticket-cell',
-                n === myTicket         ? 'ticket-cell--mine'   : '',
-                winSet.has(n)          ? 'ticket-cell--winner' : '',
+                n === myTicket ? 'ticket-cell--mine' : '',
+                winSet.has(n) ? 'ticket-cell--winner' : '',
                 n === myTicket && winSet.has(n) ? 'ticket-cell--both' : '',
               ].join(' ')}
               title={`#${n}`}
@@ -46,13 +46,13 @@ export default function Lottery() {
   const { session, profile, refreshProfile } = useAuth()
   const countdown = useMidnightCountdown()
 
-  const [config, setConfig]         = useState(null)
-  const [lottery, setLottery]       = useState(null)
-  const [myEntry, setMyEntry]       = useState(null)
+  const [config, setConfig] = useState(null)
+  const [lottery, setLottery] = useState(null)
+  const [myEntry, setMyEntry] = useState(null)
   const [pastLotteries, setPastLotteries] = useState([])
-  const [loading, setLoading]       = useState(true)
-  const [entering, setEntering]     = useState(false)
-  const [toast, setToast]           = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [entering, setEntering] = useState(false)
+  const [toast, setToast] = useState(null)
 
   function showToast(msg, type = 'success') {
     setToast({ msg, type })
@@ -90,14 +90,37 @@ export default function Lottery() {
         setMyEntry(null)
       }
 
+      // PARA:
       const { data: past } = await supabase
         .from('lotteries')
-        .select(`id, total_entries, winners_count, prize_per_winner, drawn_at,
-                 lottery_entries ( won, user_id, prize, profiles ( display_name ) )`)
+        .select('id, total_entries, winners_count, prize_per_winner, drawn_at, lottery_entries ( won, user_id, prize )')
         .eq('status', 'finished')
         .order('drawn_at', { ascending: false })
         .limit(5)
-      setPastLotteries(past ?? [])
+
+      // Busca nomes via view pública
+      const allUserIds = (past ?? [])
+        .flatMap(l => l.lottery_entries.filter(e => e.won).map(e => e.user_id))
+      const uniqueIds = [...new Set(allUserIds)]
+
+      let nameMap = {}
+      if (uniqueIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles_public')
+          .select('id, display_name')
+          .in('id', uniqueIds)
+        nameMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p.display_name]))
+      }
+
+      const pastWithNames = (past ?? []).map(l => ({
+        ...l,
+        lottery_entries: l.lottery_entries.map(e => ({
+          ...e,
+          display_name: nameMap[e.user_id] ?? 'Usuário',
+        })),
+      }))
+      setPastLotteries(pastWithNames)
+
     } finally {
       setLoading(false)
     }
@@ -123,9 +146,9 @@ export default function Lottery() {
       const { data, error } = await supabase.rpc('enter_lottery')
       if (error) throw error
 
-      if (data.error === 'already_entered')        { showToast('Você já está nesta rodada!', 'warn'); return }
-      if (data.error === 'insufficient_balance')   { showToast('Saldo insuficiente.', 'error'); return }
-      if (data.error === 'no_open_lottery')        { showToast('Nenhuma rodada aberta.', 'warn'); return }
+      if (data.error === 'already_entered') { showToast('Você já está nesta rodada!', 'warn'); return }
+      if (data.error === 'insufficient_balance') { showToast('Saldo insuficiente.', 'error'); return }
+      if (data.error === 'no_open_lottery') { showToast('Nenhuma rodada aberta.', 'warn'); return }
 
       if (data.ok) {
         showToast(`Ticket #${data.ticket_num} confirmado! Boa sorte 🎲`, 'success')
@@ -141,9 +164,9 @@ export default function Lottery() {
 
 
 
-  const estimatedPool    = lottery && config ? lottery.total_entries * lottery.entry_cost * config.prize_pool_pct / 100 : 0
+  const estimatedPool = lottery && config ? lottery.total_entries * lottery.entry_cost * config.prize_pool_pct / 100 : 0
   const estimatedWinners = lottery && config ? Math.max(1, Math.floor(lottery.total_entries * config.winner_pct / 100)) : 0
-  const estimatedPrize   = estimatedWinners > 0 ? estimatedPool / estimatedWinners : 0
+  const estimatedPrize = estimatedWinners > 0 ? estimatedPool / estimatedWinners : 0
 
   const hasBalance = profile?.balance >= (config?.entry_cost ?? 0)
 
@@ -190,7 +213,7 @@ export default function Lottery() {
                 <div className="lottery-stat lottery-stat--highlight">
                   <span className="lottery-stat__label">Prêmio POR vencedor</span>
                   <span className="lottery-stat__value lottery-stat__value--gold">
-                    {lottery?.total_entries > 0 ? formatBalance(estimatedPrize) : '—'} TKN
+                    {lottery?.total_entries > 0 ? formatBalance(estimatedPrize) : '—'} LCKM
                   </span>
                 </div>
                 <div className="lottery-stat">
@@ -216,7 +239,7 @@ export default function Lottery() {
                   <>
                     <div className="lottery-enter__cost">
                       <span>Entrada:</span>
-                      <strong>{formatBalance(config?.entry_cost ?? 0)} TKN</strong>
+                      <strong>{formatBalance(config?.entry_cost ?? 0)} LCKM</strong>
                     </div>
                     {!hasBalance && (
                       <p className="lottery-enter__no-balance">Saldo insuficiente para participar.</p>
@@ -269,10 +292,10 @@ export default function Lottery() {
                             <li key={i} className={`winners-list__item ${e.user_id === session?.user?.id ? 'winners-list__item--me' : ''}`}>
                               <span className="winners-list__icon">🏆</span>
                               <span className="winners-list__name">
-                                {e.profiles?.display_name ?? 'Usuário'}
+                                {e.display_name}
                                 {e.user_id === session?.user?.id && <span className="winners-list__you"> (você)</span>}
                               </span>
-                              <span className="winners-list__prize">+{formatBalance(e.prize)} TKN</span>
+                              <span className="winners-list__prize">+{formatBalance(e.prize)} LCKM</span>
                             </li>
                           ))}
                         </ul>
@@ -311,7 +334,7 @@ export default function Lottery() {
             <section className="lottery-rules">
               <h3>Como funciona</h3>
               <ul>
-                <li>Cada usuário entra <strong>uma vez</strong> por rodada pagando {formatBalance(config?.entry_cost ?? 0)} TKN.</li>
+                <li>Cada usuário entra <strong>uma vez</strong> por rodada pagando {formatBalance(config?.entry_cost ?? 0)} LCKM.</li>
                 <li>Todo dia à meia-noite (UTC-03:00) o sorteio acontece automaticamente.</li>
                 <li><strong>{config?.winner_pct ?? 5}%</strong> dos participantes são sorteados como vencedores.</li>
                 <li><strong>{config?.prize_pool_pct ?? 80}%</strong> do total arrecadado é dividido igualmente entre os vencedores.</li>

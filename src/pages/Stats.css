@@ -117,9 +117,6 @@
 .split-card--burn    { border-color:rgba(244,96,91,.2);  }
 .split-card--burn    .split-card__pct  { color:var(--red);    }
 
-/* ── Footer ─────────────────────────────────────────── */
-.stats-updated { font-size:.68rem; color:var(--text); text-align:center; margin:0; }
-
 /* ── Loading ────────────────────────────────────────── */
 .stats-loading { display:flex; justify-content:center; padding:4rem; }
 .stats-spinner {

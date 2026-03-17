@@ -23,7 +23,7 @@ function SupplyBar({ label, value, max, color }) {
     <div className="supply-bar">
       <div className="supply-bar__header">
         <span className="supply-bar__label">{label}</span>
-        <span className="supply-bar__value">{formatCompact(value)} TKN</span>
+        <span className="supply-bar__value">{formatCompact(value)} LCKM</span>
       </div>
       <div className="supply-bar__track">
         <div className="supply-bar__fill" style={{ '--w': `${pct}%`, '--color': color }} />
@@ -80,7 +80,7 @@ export default function Stats() {
                   <span className="stats-card__icon">🏔</span> Supply Máximo
                 </div>
                 <div className="stats-card__value">{formatCompact(maxSupply)}</div>
-                <div className="stats-card__sub">{formatNum(maxSupply, 0)} TKN</div>
+                <div className="stats-card__sub">{formatNum(maxSupply, 0)} LCKM</div>
               </div>
 
               <div className="stats-card stats-card--circ">
@@ -88,7 +88,7 @@ export default function Stats() {
                   <span className="stats-card__icon">🔄</span> Em Circulação
                 </div>
                 <div className="stats-card__value">{formatCompact(circulating)}</div>
-                <div className="stats-card__sub">{formatNum(circulating, 8)} TKN</div>
+                <div className="stats-card__sub">{formatNum(circulating, 8)} LCKM</div>
               </div>
 
               <div className="stats-card stats-card--mined">
@@ -96,7 +96,7 @@ export default function Stats() {
                   <span className="stats-card__icon">⛏</span> Total Minerado
                 </div>
                 <div className="stats-card__value">{formatCompact(mined)}</div>
-                <div className="stats-card__sub">{formatNum(mined, 8)} TKN</div>
+                <div className="stats-card__sub">{formatNum(mined, 8)} LCKM</div>
               </div>
 
               <div className="stats-card stats-card--burned">
@@ -104,7 +104,7 @@ export default function Stats() {
                   <span className="stats-card__icon">🔥</span> Queimado
                 </div>
                 <div className="stats-card__value">{formatCompact(burned)}</div>
-                <div className="stats-card__sub">{formatNum(burned, 8)} TKN</div>
+                <div className="stats-card__sub">{formatNum(burned, 8)} LCKM</div>
               </div>
 
               <div className="stats-card stats-card--staking">
@@ -112,7 +112,7 @@ export default function Stats() {
                   <span className="stats-card__icon">🔒</span> Em Staking
                 </div>
                 <div className="stats-card__value">{formatCompact(staking)}</div>
-                <div className="stats-card__sub">{formatNum(staking, 8)} TKN</div>
+                <div className="stats-card__sub">{formatNum(staking, 8)} LCKM</div>
               </div>
 
               <div className="stats-card stats-card--reserve">
@@ -123,12 +123,6 @@ export default function Stats() {
               </div>
 
             </div>
-
-            <p className="stats-updated">
-              Atualizado em {supply?.updated_at
-                ? new Date(supply.updated_at).toLocaleString('pt-BR')
-                : '—'}
-            </p>
           </>
         )}
       </main>

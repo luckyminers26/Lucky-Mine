@@ -286,7 +286,7 @@ export default function Home() {
 
       if (data.ok) {
 
-        showToast(`${formatBalance(amount)} TKN em stake.`, 'success')
+        showToast(`${formatBalance(amount)} LCKM em stake.`, 'success')
 
         setStakeInput('')
 
@@ -328,8 +328,8 @@ export default function Home() {
       if (data.ok) {
 
         const msg = data.still_locked > 0
-          ? `${formatBalance(data.returned)} TKN devolvidos.`
-          : `${formatBalance(data.returned)} TKN devolvidos!`
+          ? `${formatBalance(data.returned)} LCKM devolvidos.`
+          : `${formatBalance(data.returned)} LCKM devolvidos!`
 
         showToast(msg, 'success')
 
@@ -407,6 +407,13 @@ export default function Home() {
 
         </Link>
 
+        <Link to="/referral" className="referral-home-card">
+          <span className="referral-home-card__title">🔗 </span>
+          <span className="referral-home-card__sub">
+            Convide e ganhe <strong>10 LCKM</strong>
+          </span>
+        </Link>
+
         <section className="mine-section">
 
           <div className="mine-card">
@@ -436,7 +443,7 @@ export default function Home() {
                 {loadingRegular
                   ? <span className="mine-btn__spinner" />
                   : canMineRegular
-                    ? '⚡ Minerar agora'
+                    ? '⚡ Minerar LCKM'
                     : `⏳ ${regularCD}`}
 
               </button>
@@ -481,7 +488,7 @@ export default function Home() {
                   {loadingPremium
                     ? <span className="mine-btn__spinner" />
                     : canMinePremium
-                      ? '💎 Coletar loot diário'
+                      ? '💎 Minerar LCKM'
                       : `⏳ ${premiumCD}`}
 
                 </button>
@@ -524,7 +531,7 @@ export default function Home() {
 
               <div className="staking-pool-info">
                 <span className="staking-pool-label">Pool total</span>
-                <span className="staking-pool-value">{formatBalance(totalStaked, 2)} TKN</span>
+                <span className="staking-pool-value">{formatBalance(totalStaked, 2)} LCKM</span>
               </div>
 
             )}
@@ -538,7 +545,7 @@ export default function Home() {
               <span className="staking-reserve__label">Reserva acumulada</span>
 
               <span className="staking-reserve__value staking-reserve__value--accent">
-                {formatBalance(stakingReserve)} TKN
+                {formatBalance(stakingReserve)} LCKM
               </span>
 
             </div>
@@ -550,7 +557,7 @@ export default function Home() {
                 <span className="staking-reserve__label">Total já recebido</span>
 
                 <span className="staking-reserve__value">
-                  {formatBalance(pendingReward)} TKN
+                  {formatBalance(pendingReward)} LCKM
                 </span>
 
               </div>
@@ -567,13 +574,13 @@ export default function Home() {
 
                 <div className="staking-active__stat">
                   <span className="staking-active__label">Total em stake</span>
-                  <span className="staking-active__value">{formatBalance(myTotalStaked)} TKN</span>
+                  <span className="staking-active__value">{formatBalance(myTotalStaked)} LCKM</span>
                 </div>
 
                 <div className="staking-active__stat">
                   <span className="staking-active__label">Prêmio estimado</span>
                   <span className="staking-active__value staking-active__value--gold">
-                    {formatBalance((myStakePct / 100) * stakingReserve)} TKN
+                    {formatBalance((myStakePct / 100) * stakingReserve)} LCKM
                   </span>
                 </div>
 
@@ -590,7 +597,7 @@ export default function Home() {
 
                     <div key={st.id} className={`stake-item ${locked ? 'stake-item--locked' : 'stake-item--free'}`}>
 
-                      <span className="stake-item__amount">{formatBalance(st.amount)} TKN</span>
+                      <span className="stake-item__amount">{formatBalance(st.amount)} LCKM</span>
 
                       {locked
                         ? <LockCountdown lockedUntil={until} />
@@ -615,7 +622,7 @@ export default function Home() {
                 {stakingAction
                   ? <span className="mine-btn__spinner" />
                   : unlockableAmount > 0
-                    ? `↩ Retirar ${formatBalance(unlockableAmount, 2)} TKN`
+                    ? `↩ Retirar ${formatBalance(unlockableAmount, 2)} LCKM`
                     : '↩ Remover stake'}
 
               </button>
@@ -635,7 +642,7 @@ export default function Home() {
                       <li key={r.id} className="staking-rewards__item">
 
                         <span className="staking-rewards__amount">
-                          +{formatBalance(r.amount)} TKN
+                          +{formatBalance(r.amount)} LCKM
                         </span>
 
                         <span className="staking-rewards__pct">
@@ -658,7 +665,7 @@ export default function Home() {
               <input
                 type="number"
                 className="staking-input"
-                placeholder="Quantidade de TKN"
+                placeholder="Quantidade de LCKM"
                 value={stakeInput}
                 onChange={e => setStakeInput(e.target.value)}
                 min="0"
