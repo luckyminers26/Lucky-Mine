@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Eye, EyeOff } from "lucide-react"
 import './Header.css'
+import logo from '../assets/luckymine.png';
 
 export default function Header() {
   const { profile, signOut, showBalance, setShowBalance } = useAuth()
@@ -25,11 +26,7 @@ export default function Header() {
   return (
     <header className="header">
       <Link to="/" className="header__logo" aria-label="Home">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-          <rect width="32" height="32" rx="8" fill="#5b5ef4" />
-          <path d="M8 16 L16 8 L24 16 L16 24 Z" fill="white" opacity="0.9" />
-          <circle cx="16" cy="16" r="4" fill="white" />
-        </svg>
+      <img className='' src={logo} alt="Logo" width="40" />
       </Link>
       {profile && (
         <span className="header__logo-balance">
