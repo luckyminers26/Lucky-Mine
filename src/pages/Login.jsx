@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useTurnstile } from '../hooks/useTurnstile'
 import { supabase } from '../lib/supabaseClient2'
 import './Login.css'
+import logo from '../assets/luckymine.png';
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY
 
@@ -104,11 +105,7 @@ export default function Login() {
       <div className="login-card">
         <div className="login-card__header">
           <a href="/" className="login-card__logo">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="8" fill="#5b5ef4" />
-              <path d="M8 16 L16 8 L24 16 L16 24 Z" fill="white" opacity="0.9" />
-              <circle cx="16" cy="16" r="4" fill="white" />
-            </svg>
+            <img className='' src={logo} alt="Logo" width="40" />
             <span>Lucky Mine</span>
           </a>
 
