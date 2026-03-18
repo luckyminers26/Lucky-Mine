@@ -13,15 +13,6 @@
   --radius: 14px;
 }
 
-
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus {
-  -webkit-text-fill-color: var(--text);
-  transition: background-color 9999s ease-in-out 0s;
-  box-shadow: 0 0 0px 1000px var(--surface) inset;
-  border: 1px solid var(--border);
-}
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
   display: none;
@@ -196,12 +187,13 @@ input[type="password"]::-webkit-textfield-decoration-container {
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   width: 100%;
-  box-sizing: border-box;
 }
-.login-field input::placeholder { color: #3a3a50; }
+.login-field input::placeholder { 
+  color: #3a3a50; 
+}
+
 .login-field input:focus {
   border-color: var(--accent);
-  background: rgba(91,94,244,0.06);
   box-shadow: 0 0 0 3px rgba(91,94,244,0.15);
 }
 

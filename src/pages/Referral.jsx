@@ -5,16 +5,16 @@ import Header from '../components/Header'
 import './Referral.css'
 
 const MAX_REFERRALS = 10
-const REWARD_LCKM    = 1
-const LOTTERY_REQ   = 10
+const REWARD_LCKM = 1
+const LOTTERY_REQ = 10
 
 export default function Referral() {
   const { profile, session } = useAuth()
 
   const [referrals, setReferrals] = useState([])
-  const [loading, setLoading]     = useState(true)
-  const [copied, setCopied]       = useState(false)
-  const [origin, setOrigin]       = useState('')
+  const [loading, setLoading] = useState(true)
+  const [copied, setCopied] = useState(false)
+  const [origin, setOrigin] = useState('')
 
   // Captura origin após mount (evita erro de SSR/hydration)
   useEffect(() => { setOrigin(window.location.origin) }, [])
@@ -76,9 +76,9 @@ export default function Referral() {
     }
   }
 
-  const rewarded    = referrals.filter(r => r.rewarded).length
-  const pending     = referrals.filter(r => !r.rewarded).length
-  const slots       = MAX_REFERRALS - referrals.length
+  const rewarded = referrals.filter(r => r.rewarded).length
+  const pending = referrals.filter(r => !r.rewarded).length
+  const slots = MAX_REFERRALS - referrals.length
   const totalEarned = rewarded * REWARD_LCKM
 
   return (
@@ -95,28 +95,6 @@ export default function Referral() {
             Ganhe <strong>{REWARD_LCKM} LCKM</strong> por cada um que jogar
             na loteria <strong>{LOTTERY_REQ} vezes</strong>.
           </p>
-        </div>
-
-        {/* Stats */}
-        <div className="ref-stats">
-          <div className="ref-stat">
-            <span className="ref-stat__label">Convidados</span>
-            <span className="ref-stat__value">
-              {referrals.length}<span className="ref-stat__max">/{MAX_REFERRALS}</span>
-            </span>
-          </div>
-          <div className="ref-stat">
-            <span className="ref-stat__label">Recompensados</span>
-            <span className="ref-stat__value">{rewarded}</span>
-          </div>
-          <div className="ref-stat">
-            <span className="ref-stat__label">Pendentes</span>
-            <span className="ref-stat__value">{pending}</span>
-          </div>
-          <div className="ref-stat">
-            <span className="ref-stat__label">LCKM ganhos</span>
-            <span className="ref-stat__value ref-stat__value--mono">{totalEarned}.00000000</span>
-          </div>
         </div>
 
         {/* Link */}
@@ -141,12 +119,30 @@ export default function Referral() {
               {copied ? '✓ Copiado' : 'Copiar'}
             </button>
           </div>
+        </div>
 
-          <div className="ref-code-row">
-            <span className="ref-code-label">Código:</span>
-            <code className="ref-code">{profile?.referral_code ?? '—'}</code>
+        {/* Stats */}
+        <div className="ref-stats">
+          <div className="ref-stat">
+            <span className="ref-stat__label">Convidados</span>
+            <span className="ref-stat__value">
+              {referrals.length}<span className="ref-stat__max">/{MAX_REFERRALS}</span>
+            </span>
+          </div>
+          <div className="ref-stat">
+            <span className="ref-stat__label">Recompensados</span>
+            <span className="ref-stat__value">{rewarded}</span>
+          </div>
+          <div className="ref-stat">
+            <span className="ref-stat__label">Pendentes</span>
+            <span className="ref-stat__value">{pending}</span>
+          </div>
+          <div className="ref-stat">
+            <span className="ref-stat__label">LCKM ganhos</span>
+            <span className="ref-stat__value ref-stat__value--mono">{totalEarned}.00000000</span>
           </div>
         </div>
+
 
         {/* Lista de convidados */}
         <div className="ref-card">
@@ -164,7 +160,7 @@ export default function Referral() {
             <ul className="ref-list">
               {referrals.map((r, i) => {
                 const name = r.profiles?.display_name ?? 'Usuário'
-                const pct  = Math.min(100, (r.lottery_count / LOTTERY_REQ) * 100)
+                const pct = Math.min(100, (r.lottery_count / LOTTERY_REQ) * 100)
                 return (
                   <li key={r.id} className="ref-item" style={{ '--d': `${i * 40}ms` }}>
                     <div className="ref-item__top">
