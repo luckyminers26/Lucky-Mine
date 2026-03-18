@@ -422,7 +422,7 @@ export default function Home() {
               <div className="mine-card__icon">⛏</div>
               <div>
                 <h2 className="mine-card__title">Mineração</h2>
-                <p className="mine-card__desc">Colete tokens a cada 2 horas</p>
+                <p className="mine-card__desc">Colete 0.05 LCKM a cada 2 horas</p>
               </div>
             </div>
 

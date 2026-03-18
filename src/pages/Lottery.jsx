@@ -12,36 +12,6 @@ function formatBalance(val) {
   })
 }
 
-function TicketGrid({ total, myTicket, winners }) {
-  const winSet = new Set(winners ?? [])
-  const cells = Array.from({ length: Math.min(total, 120) }, (_, i) => i + 1)
-  return (
-    <div className="ticket-grid">
-      {total === 0 ? (
-        <p className="ticket-grid__empty">Nenhum ticket ainda. Seja o primeiro!</p>
-      ) : (
-        <>
-          {cells.map(n => (
-            <div
-              key={n}
-              className={[
-                'ticket-cell',
-                n === myTicket ? 'ticket-cell--mine' : '',
-                winSet.has(n) ? 'ticket-cell--winner' : '',
-                n === myTicket && winSet.has(n) ? 'ticket-cell--both' : '',
-              ].join(' ')}
-              title={`#${n}`}
-            />
-          ))}
-          {total > 120 && (
-            <div className="ticket-grid__more">+{total - 120} outros</div>
-          )}
-        </>
-      )}
-    </div>
-  )
-}
-
 export default function Lottery() {
   const { session, profile, refreshProfile } = useAuth()
   const countdown = useMidnightCountdown()
@@ -90,7 +60,6 @@ export default function Lottery() {
         setMyEntry(null)
       }
 
-      // PARA:
       const { data: past } = await supabase
         .from('lotteries')
         .select('id, total_entries, winners_count, prize_per_winner, drawn_at, lottery_entries ( won, user_id, prize )')
@@ -98,7 +67,6 @@ export default function Lottery() {
         .order('drawn_at', { ascending: false })
         .limit(5)
 
-      // Busca nomes via view pública
       const allUserIds = (past ?? [])
         .flatMap(l => l.lottery_entries.filter(e => e.won).map(e => e.user_id))
       const uniqueIds = [...new Set(allUserIds)]
@@ -128,7 +96,6 @@ export default function Lottery() {
 
   useEffect(() => { loadData() }, [loadData])
 
-  // Realtime
   useEffect(() => {
     const ch = supabase.channel('lottery-rt')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'lotteries' }, () => {
@@ -162,8 +129,6 @@ export default function Lottery() {
     }
   }
 
-
-
   const estimatedPool = lottery && config ? lottery.total_entries * lottery.entry_cost * config.prize_pool_pct / 100 : 0
   const estimatedWinners = lottery && config ? Math.max(1, Math.floor(lottery.total_entries * config.winner_pct / 100)) : 0
   const estimatedPrize = estimatedWinners > 0 ? estimatedPool / estimatedWinners : 0
@@ -179,16 +144,9 @@ export default function Lottery() {
       )}
 
       <main className="lottery-main">
-
-        {/* Hero com countdown */}
         <div className="lottery-hero">
           <div className="lottery-hero__orb lottery-hero__orb--1" />
-          <div className="lottery-hero__orb lottery-hero__orb--2" />
-          <h1 className="lottery-hero__title">🎲 Loteria Diária</h1>
-          <p className="lottery-hero__sub">
-            Sorteio automático todo dia à meia-noite (UTC-03:00).<br />
-            {config ? `${config.winner_pct}%` : '5%'} dos participantes ganham.
-          </p>
+          <h1 className="lottery-hero__title">Loteria Diária</h1>
           <div className="lottery-hero__countdown">
             <span className="lottery-hero__countdown-label">Próximo sorteio em</span>
             <span className="lottery-hero__countdown-value">{countdown}</span>
@@ -199,7 +157,6 @@ export default function Lottery() {
           <div className="lottery-loading"><span className="lottery-spinner" /></div>
         ) : (
           <>
-            {/* Rodada atual */}
             <section className="lottery-card lottery-card--current">
               <div className="lottery-card__header">
                 <div className="lottery-card__header-left">
@@ -222,18 +179,11 @@ export default function Lottery() {
                 </div>
               </div>
 
-              <TicketGrid
-                total={lottery?.total_entries ?? 0}
-                myTicket={myEntry?.ticket_num}
-                winners={[]}
-              />
-
               <div className="lottery-enter">
                 {myEntry ? (
                   <div className="lottery-enter__ticket">
                     <span className="lottery-enter__ticket-label">Seu ticket</span>
                     <span className="lottery-enter__ticket-num">#{myEntry.ticket_num}</span>
-                    <span className="lottery-enter__waiting">Aguardando sorteio à meia-noite…</span>
                   </div>
                 ) : (
                   <>
@@ -258,7 +208,6 @@ export default function Lottery() {
               </div>
             </section>
 
-            {/* Resultados anteriores */}
             {pastLotteries.length > 0 && (
               <div className="past-lotteries">
                 <h3 className="past-lotteries__title">Últimas rodadas</h3>
@@ -308,7 +257,6 @@ export default function Lottery() {
               </div>
             )}
 
-            {/* Split da loteria */}
             <section className="lottery-split">
               <h3 className="lottery-split__title">Distribuição do prêmio</h3>
               <div className="lottery-split__cards">
@@ -330,7 +278,6 @@ export default function Lottery() {
               </div>
             </section>
 
-            {/* Regras */}
             <section className="lottery-rules">
               <h3>Como funciona</h3>
               <ul>
@@ -338,7 +285,7 @@ export default function Lottery() {
                 <li>Todo dia à meia-noite (UTC-03:00) o sorteio acontece automaticamente.</li>
                 <li><strong>{config?.winner_pct ?? 5}%</strong> dos participantes são sorteados como vencedores.</li>
                 <li><strong>{config?.prize_pool_pct ?? 80}%</strong> do total arrecadado é dividido igualmente entre os vencedores.</li>
-                <li>Uma nova rodada abre  após o sorteio.</li>
+                <li>Uma nova rodada abre após o sorteio.</li>
               </ul>
             </section>
           </>

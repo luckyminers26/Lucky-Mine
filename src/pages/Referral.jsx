@@ -89,7 +89,6 @@ export default function Referral() {
         {/* Hero */}
         <div className="ref-hero">
           <div className="ref-hero__orb" />
-          <div className="ref-hero__badge">REFERRAL</div>
           <h1 className="ref-hero__title">Convide.<br />Ganhe.</h1>
           <p className="ref-hero__sub">
             Convide até <strong>{MAX_REFERRALS}</strong> amigos.
@@ -176,7 +175,7 @@ export default function Referral() {
                         </span>
                       </div>
                       <span className={`ref-item__status ${r.rewarded ? 'ref-item__status--done' : 'ref-item__status--pending'}`}>
-                        {r.rewarded ? `✓ +${REWARD_LCKM} LCKM` : 'Pendente'}
+                        {r.rewarded ? `+${REWARD_LCKM} LCKM` : 'Pendente'}
                       </span>
                     </div>
                     <div className="ref-progress">

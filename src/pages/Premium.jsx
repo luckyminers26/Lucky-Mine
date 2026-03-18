@@ -22,7 +22,7 @@ function PremiumBadge({ type }) {
   if (!type) return null
   return (
     <div className={`prem-badge ${type === 'lifetime' ? 'prem-badge--lifetime' : 'prem-badge--monthly'}`}>
-      
+
     </div>
   )
 }
@@ -228,7 +228,7 @@ export default function Premium() {
                 </div>
                 <div className="prem-price-row__right">
                   <span className="prem-price-row__amount">
-                    {config?.monthly_price_LCKM != null ? fmt8(config.monthly_price_LCKM) : '…'} LCKM
+                    {config?.monthly_price_lckm != null ? fmt8(config.monthly_price_lckm) : '…'} LCKM
                   </span>
                   <button className="prem-btn prem-btn--LCKM"
                     onClick={() => payWithLCKM('monthly')}
@@ -274,13 +274,13 @@ export default function Premium() {
               <span className="prem-plan__tag prem-plan__tag--gold">VITALÍCIO</span>
               <h3>Premium para sempre</h3>
               <p>
-                Pague uma vez, nunca mais.{' '}
-                {slotsLeft !== null && (
-                  <strong className={slotsLeft < 100 ? 'prem-slots--urgent' : ''}>
-                    {slotsLeft} vagas restantes
-                  </strong>
-                )}
+                Pague uma vez, nunca mais.
               </p>
+              <p>{slotsLeft !== null && (
+                <strong className={slotsLeft < 100 ? 'prem-slots--urgent' : ''}>
+                  {slotsLeft} vagas restantes até o preço dobrar.
+                </strong>
+              )}</p>
             </div>
             <div className="prem-plan__prices">
 
@@ -291,7 +291,7 @@ export default function Premium() {
                 </div>
                 <div className="prem-price-row__right">
                   <span className="prem-price-row__amount">
-                    {config?.lifetime_price_LCKM != null ? fmt8(config.lifetime_price_LCKM) : '…'} LCKM
+                    {config?.lifetime_price_lckm != null ? fmt8(config.lifetime_price_lckm) : '…'} LCKM
                   </span>
                   <button className="prem-btn prem-btn--LCKM"
                     onClick={() => payWithLCKM('lifetime')}

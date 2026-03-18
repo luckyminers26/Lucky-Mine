@@ -13,6 +13,16 @@
   --radius: 14px;
 }
 
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
+}
+
 /* ── Page ───────────────────────────────────────────── */
 .login-page {
   position: relative;
@@ -180,7 +190,7 @@
   width: 100%;
   box-sizing: border-box;
 }
-.login-field input::placeholder { color: var(--text); }
+.login-field input::placeholder { color: #3a3a50; }
 .login-field input:focus {
   border-color: var(--accent);
   background: rgba(91,94,244,0.06);
@@ -272,10 +282,12 @@
 }
 .login-toggle button:hover { opacity: 0.8; }
 
+/* ── Responsive ─────────────────────────────────────── */
 @media (max-width: 480px) {
   .login-card { padding: 2rem 1.5rem 1.75rem; }
 }
 
+/* ── Input wrap (senha com botão ver) ───────────────── */
 .login-input-wrap {
   position: relative;
   display: flex;
@@ -296,6 +308,7 @@
   opacity: 0.6;
   transition: opacity 0.2s;
 }
+.login-eye:hover { opacity: 1; }
 
 .login-input--error {
   border-color: var(--error) !important;
@@ -304,4 +317,23 @@
   font-size: 0.7rem;
   color: var(--error);
   margin-top: 2px;
+}
+
+/* ── Turnstile ──────────────────────────────────────── */
+.login-turnstile {
+  display: flex;
+  justify-content: center;
+  min-height: 32px; /* evita layout shift quando carrega */
+}
+
+/* ── Warning (dispositivo existente) ───────────────── */
+.login-warning {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #f0b429;
+  background: rgba(240,180,41,0.08);
+  border: 1px solid rgba(240,180,41,0.25);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  line-height: 1.5;
 }

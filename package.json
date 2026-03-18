@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^5.1.0",
     "@supabase/supabase-js": "^2.99.1",
     "ethers": "^6.16.0",
     "lucide-react": "^0.577.0",
