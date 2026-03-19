@@ -5,7 +5,7 @@ import Home        from './pages/Home'
 import Lottery     from './pages/Lottery'
 import Stats       from './pages/Stats'
 import Premium     from './pages/Premium'
-import Referral    from './pages/Referral'
+import Referral       from './pages/Referral'
 
 function PrivateRoute({ children }) {
   const { session, loading } = useAuth()

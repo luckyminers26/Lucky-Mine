@@ -669,7 +669,7 @@ export default function Home() {
                 value={stakeInput}
                 onChange={e => setStakeInput(e.target.value)}
                 min="0"
-                step="0.00000001"
+                step="0.2"
               />
               <button
                 className="staking-btn staking-btn--stake"

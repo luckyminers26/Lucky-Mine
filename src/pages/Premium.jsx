@@ -77,7 +77,7 @@ export default function Premium() {
     setError('')
     setLoading(`${plan}-LCKM`)
     try {
-      const { data, error } = await supabase.rpc('activate_premium_LCKM', { p_plan: plan })
+      const { data, error } = await supabase.rpc('activate_premium_lckm', { p_plan: plan })
       if (error) throw error
       if (data.error) {
         const msgs = {
@@ -224,7 +224,6 @@ export default function Premium() {
               <div className="prem-price-row">
                 <div className="prem-price-row__info">
                   <span className="prem-price-row__label">Pagar em LCKM</span>
-                  <span className="prem-price-row__note">Tokens são queimados 🔥</span>
                 </div>
                 <div className="prem-price-row__right">
                   <span className="prem-price-row__amount">
@@ -247,6 +246,8 @@ export default function Premium() {
                 <div className="prem-price-row__info">
                   <span className="prem-price-row__label">Pagar em USDT</span>
                   <span className="prem-price-row__note">Via wallet · USDT BSC</span>
+                  <span className="prem-price-row__note">Você precisa de ~0.001 BNB para pagar a taxa de rede.</span>
+
                 </div>
                 <div className="prem-price-row__right">
                   <span className="prem-price-row__amount">
@@ -273,9 +274,6 @@ export default function Premium() {
             <div className="prem-plan__header">
               <span className="prem-plan__tag prem-plan__tag--gold">VITALÍCIO</span>
               <h3>Premium para sempre</h3>
-              <p>
-                Pague uma vez, nunca mais.
-              </p>
               <p>{slotsLeft !== null && (
                 <strong className={slotsLeft < 100 ? 'prem-slots--urgent' : ''}>
                   {slotsLeft} vagas restantes até o preço dobrar.
@@ -287,7 +285,6 @@ export default function Premium() {
               <div className="prem-price-row">
                 <div className="prem-price-row__info">
                   <span className="prem-price-row__label">Pagar em LCKM</span>
-                  <span className="prem-price-row__note">Tokens são queimados 🔥</span>
                 </div>
                 <div className="prem-price-row__right">
                   <span className="prem-price-row__amount">

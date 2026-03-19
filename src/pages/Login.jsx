@@ -1,96 +1,41 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { useTurnstile } from '../hooks/useTurnstile'
 import { supabase } from '../lib/supabaseClient2'
+import logo from '../assets/luckymine.png'
 import './Login.css'
-import logo from '../assets/luckymine.png';
-
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY
 
 export default function Login() {
-  const { signIn, signUp } = useAuth()
   const navigate = useNavigate()
-  const { containerRef, token: turnstileToken, reset: resetTurnstile } = useTurnstile(TURNSTILE_SITE_KEY)
 
-  const [mode, setMode] = useState('login')
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const ref = params.get('ref')
-    if (ref) {
-      localStorage.setItem('referral_code', ref.toUpperCase())
-      setMode('register')
+    const err = localStorage.getItem('auth_error')
+    if (err) {
+      setError(err)
+      localStorage.removeItem('auth_error')
     }
   }, [])
 
-  const [email, setEmail]                     = useState('')
-  const [password, setPassword]               = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [displayName, setDisplayName]         = useState('')
-  const [error, setError]                     = useState('')
-  const [warning, setWarning]                 = useState('')
-  const [loading, setLoading]                 = useState(false)
-  const [showPassword, setShowPassword]       = useState(false)
-  const [showConfirm, setShowConfirm]         = useState(false)
-
-  async function handleSubmit(e) {
-    e.preventDefault()
-    setError('')
-
-    if (mode === 'register' && password !== confirmPassword) {
-      setError('As senhas não coincidem.')
-      return
-    }
-
-    // Bloqueia se Turnstile não validou ainda
-    if (TURNSTILE_SITE_KEY && !turnstileToken) {
-      setError('Verificação de segurança pendente. Aguarde um momento.')
-      return
-    }
-
-    // Valida Turnstile no backend antes de prosseguir
-    if (TURNSTILE_SITE_KEY && turnstileToken) {
-      const { error: tsError } = await supabase.functions.invoke('verify-turnstile', {
-        body: { token: turnstileToken },
-      })
-      if (tsError) {
-        setError('Verificação de segurança falhou. Tente novamente.')
-        resetTurnstile()
-        return
-      }
-    }
-
-    setLoading(true)
-    try {
-      if (mode === 'login') {
-        await signIn(email, password)
-      } else {
-        await signUp(email, password, displayName)
-
-        const refCode = localStorage.getItem('referral_code')
-        if (refCode) {
-          await supabase.rpc('apply_referral', { p_code: refCode })
-          localStorage.removeItem('referral_code')
-        }
-      }
-      navigate('/')
-    } catch (err) {
-      setError(err.message)
-      resetTurnstile()
-    } finally {
-      setLoading(false)
-    }
+  async function handleGoogle() {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    })
+    // Supabase redireciona para o Google e volta para /
+    // O AuthContext detecta a sessão e busca/cria o profile
   }
 
-  function toggleMode() {
-    setMode(m => (m === 'login' ? 'register' : 'login'))
-    setError('')
-    setWarning('')
-    setPassword('')
-    setConfirmPassword('')
-    resetTurnstile()
+  async function handleMetaMask() {
+    // Placeholder — implementar Web3 auth
+    alert('MetaMask login em breve')
   }
 
   return (
@@ -102,97 +47,48 @@ export default function Login() {
       </div>
       <div className="login-orb" aria-hidden="true" />
 
-      <div className="login-card">
-        <div className="login-card__header">
-          <a href="/" className="login-card__logo">
-            <img className='' src={logo} alt="Logo" width="40" />
-            <span>Lucky Mine</span>
-          </a>
-
-          <div className="login-card__tabs">
-            <button className={`login-tab ${mode === 'login' ? 'login-tab--active' : ''}`}
-              onClick={() => { setMode('login'); setError(''); setWarning('') }} type="button">
-              Entrar
-            </button>
-            <button className={`login-tab ${mode === 'register' ? 'login-tab--active' : ''}`}
-              onClick={() => { setMode('register'); setError(''); setWarning('') }} type="button">
-              Criar conta
-            </button>
-          </div>
+      <div className="login-card login-card--oauth">
+        <div className="login-card__header login-card__header--center">
+          <img src={logo} alt="Lucky Mine" width="56" className="login-logo-img" />
+          <h1 className="login-title">Lucky Mine</h1>
+          <p className="login-subtitle">Entre para começar a minerar</p>
         </div>
 
-        <form className="login-form" onSubmit={handleSubmit} noValidate>
-          {mode === 'register' && (
-            <div className="login-field" style={{ '--delay': '0ms' }}>
-              <label htmlFor="displayName">Nome</label>
-              <input id="displayName" type="text"
-                placeholder="Como devemos te chamar?"
-                value={displayName} onChange={e => setDisplayName(e.target.value)}
-                required autoComplete="name" />
-            </div>
-          )}
+        {error && (
+          <p style={{ fontSize:'.78rem', color:'#f4605b', background:'rgba(244,96,91,.08)', border:'1px solid rgba(244,96,91,.2)', borderRadius:'6px', padding:'.55rem .8rem', marginBottom:'1rem', textAlign:'center' }}>
+            {error}
+          </p>
+        )}
 
-          <div className="login-field" style={{ '--delay': '60ms' }}>
-            <label htmlFor="email">E-mail</label>
-            <input id="email" type="email" placeholder="voce@email.com"
-              value={email} onChange={e => setEmail(e.target.value)}
-              required autoComplete="email" />
-          </div>
-
-          <div className="login-field" style={{ '--delay': '120ms' }}>
-            <label htmlFor="password">Senha</label>
-            <div className="login-input-wrap">
-              <input id="password" type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••" value={password}
-                onChange={e => setPassword(e.target.value)} required
-                autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
-              <button type="button" className="login-eye"
-                onClick={() => setShowPassword(v => !v)} tabIndex={-1}>
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </div>
-
-          {mode === 'register' && (
-            <div className="login-field" style={{ '--delay': '180ms' }}>
-              <label htmlFor="confirmPassword">Confirmar senha</label>
-              <div className="login-input-wrap">
-                <input id="confirmPassword"
-                  type={showConfirm ? 'text' : 'password'}
-                  placeholder="••••••••" value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)} required
-                  autoComplete="new-password"
-                  className={confirmPassword && password !== confirmPassword ? 'login-input--error' : ''} />
-                <button type="button" className="login-eye"
-                  onClick={() => setShowConfirm(v => !v)} tabIndex={-1}>
-                  {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-              {confirmPassword && password !== confirmPassword && (
-                <span className="login-field__hint">As senhas não coincidem</span>
-              )}
-            </div>
-          )}
-
-          {/* Turnstile — invisível para humanos, carrega automaticamente */}
-          <div ref={containerRef} className="login-turnstile" />
-
-          {warning && <p className="login-warning">{warning}</p>}
-          {error   && <p className="login-error">{error}</p>}
-
-          <button className="login-submit" type="submit" disabled={loading}>
-            {loading
-              ? <span className="login-spinner" />
-              : mode === 'login' ? 'Entrar' : 'Criar conta'}
+        <div className="login-oauth-btns">
+          <button className="login-oauth-btn login-oauth-btn--google" onClick={handleGoogle}>
+            <svg width="20" height="20" viewBox="0 0 48 48">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+              <path fill="none" d="M0 0h48v48H0z"/>
+            </svg>
+            Entrar com Google
           </button>
-        </form>
 
-        <p className="login-toggle">
-          {mode === 'login' ? 'Ainda não tem conta?' : 'Já tem conta?'}
-          {' '}
-          <button type="button" onClick={toggleMode}>
-            {mode === 'login' ? 'Criar conta' : 'Entrar'}
+          <button className="login-oauth-btn login-oauth-btn--metamask" onClick={handleMetaMask}>
+            <svg width="20" height="20" viewBox="0 0 35 33" fill="none">
+              <path d="M32.958 1L19.648 10.91l2.443-5.79L32.958 1z" fill="#E17726"/>
+              <path d="M2.042 1l13.17 10L12.91 5.12 2.042 1z" fill="#E27625"/>
+              <path d="M28.17 23.34l-3.54 5.42 7.58 2.09 2.17-7.36-6.21-.15z" fill="#E27625"/>
+              <path d="M1.63 23.49l2.16 7.36 7.57-2.09-3.53-5.42-6.2.15z" fill="#E27625"/>
+              <path d="M10.96 14.49l-2.11 3.19 7.52.34-.25-8.09-5.16 4.56z" fill="#E27625"/>
+              <path d="M24.04 14.49l-5.22-4.65-.17 8.18 7.51-.34-2.12-3.19z" fill="#E27625"/>
+              <path d="M11.36 28.76l4.53-2.2-3.91-3.05-.62 5.25z" fill="#E27625"/>
+              <path d="M19.11 26.56l4.54 2.2-.63-5.25-3.91 3.05z" fill="#E27625"/>
+            </svg>
+            Entrar com MetaMask
           </button>
+        </div>
+
+        <p className="login-terms">
+          Ao entrar, você concorda com nossos termos de uso e política de privacidade.
         </p>
       </div>
     </div>
