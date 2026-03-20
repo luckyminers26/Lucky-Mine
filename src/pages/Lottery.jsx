@@ -7,8 +7,8 @@ import './Lottery.css'
 
 function formatBalance(val) {
   return Number(val ?? 0).toLocaleString('en-US', {
-    minimumFractionDigits: 8,
-    maximumFractionDigits: 8,
+    minimumFractionDigits: 4,
+    maximumFractionDigits: 4,
   })
 }
 
@@ -146,9 +146,9 @@ export default function Lottery() {
       <main className="lottery-main">
         <div className="lottery-hero">
           <div className="lottery-hero__orb lottery-hero__orb--1" />
-          <h1 className="lottery-hero__title">Loteria Diária</h1>
+          <h1 className="lottery-hero__title">Daily Lotto</h1>
           <div className="lottery-hero__countdown">
-            <span className="lottery-hero__countdown-label">Próximo sorteio em</span>
+            <span className="lottery-hero__countdown-label">Next drawning</span>
             <span className="lottery-hero__countdown-value">{countdown}</span>
           </div>
         </div>
@@ -160,21 +160,20 @@ export default function Lottery() {
             <section className="lottery-card lottery-card--current">
               <div className="lottery-card__header">
                 <div className="lottery-card__header-left">
-                  <span className="lottery-card__status lottery-card__status--open">● Aberta</span>
-                  <span className="lottery-card__id">Rodada #{lottery?.id ?? '—'}</span>
+                  <span className="lottery-card__status lottery-card__status--open">● Open</span>
+                  <span className="lottery-card__id">Round #{lottery?.id ?? '—'}</span>
                 </div>
-                <span className="lottery-card__closes">Fecha à meia-noite</span>
               </div>
 
               <div className="lottery-stats">
                 <div className="lottery-stat lottery-stat--highlight">
-                  <span className="lottery-stat__label">Prêmio POR vencedor</span>
+                  <span className="lottery-stat__label">Prize per winner</span>
                   <span className="lottery-stat__value lottery-stat__value--gold">
                     {lottery?.total_entries > 0 ? formatBalance(estimatedPrize) : '—'} LCKM
                   </span>
                 </div>
                 <div className="lottery-stat">
-                  <span className="lottery-stat__label">Entrada</span>
+                  <span className="lottery-stat__label">Ticket</span>
                   <span className="lottery-stat__value">{formatBalance(config?.entry_cost ?? 0)}</span>
                 </div>
               </div>
@@ -182,17 +181,13 @@ export default function Lottery() {
               <div className="lottery-enter">
                 {myEntry ? (
                   <div className="lottery-enter__ticket">
-                    <span className="lottery-enter__ticket-label">Seu ticket</span>
+                    <span className="lottery-enter__ticket-label">your number</span>
                     <span className="lottery-enter__ticket-num">#{myEntry.ticket_num}</span>
                   </div>
                 ) : (
                   <>
-                    <div className="lottery-enter__cost">
-                      <span>Entrada:</span>
-                      <strong>{formatBalance(config?.entry_cost ?? 0)} LCKM</strong>
-                    </div>
                     {!hasBalance && (
-                      <p className="lottery-enter__no-balance">Saldo insuficiente para participar.</p>
+                      <p className="lottery-enter__no-balance">Insufficient balance.</p>
                     )}
                     <button
                       className="lottery-enter__btn"
@@ -201,7 +196,7 @@ export default function Lottery() {
                     >
                       {entering
                         ? <span className="lottery-spinner lottery-spinner--sm" />
-                        : '🎲 Participar desta rodada'}
+                        : '🎲 Join round'}
                     </button>
                   </>
                 )}
@@ -210,7 +205,7 @@ export default function Lottery() {
 
             {pastLotteries.length > 0 && (
               <div className="past-lotteries">
-                <h3 className="past-lotteries__title">Últimas rodadas</h3>
+                <h3 className="past-lotteries__title">Last rounds</h3>
                 {pastLotteries.map(lot => {
                   const winners = lot.lottery_entries.filter(e => e.won)
                   const iWon = winners.some(e => e.user_id === session?.user?.id)
@@ -219,7 +214,7 @@ export default function Lottery() {
                       <div className="lottery-card__header">
                         <div className="lottery-card__header-left">
                           <span className="lottery-card__status lottery-card__status--closed">● Encerrada</span>
-                          <span className="lottery-card__id">Rodada #{lot.id}</span>
+                          <span className="lottery-card__id">Round #{lot.id}</span>
                         </div>
                         <span className="lottery-drawn-at--inline">
                           {new Date(lot.drawn_at).toLocaleString('pt-BR', {
@@ -231,7 +226,7 @@ export default function Lottery() {
 
                       {iWon && (
                         <div className="lottery-winner-banner">
-                          🏆 Você foi um dos vencedores desta rodada!
+                          🏆 You were one of the winners!
                         </div>
                       )}
 
@@ -242,14 +237,13 @@ export default function Lottery() {
                               <span className="winners-list__icon">🏆</span>
                               <span className="winners-list__name">
                                 {e.display_name}
-                                {e.user_id === session?.user?.id && <span className="winners-list__you"> (você)</span>}
                               </span>
                               <span className="winners-list__prize">+{formatBalance(e.prize)} LCKM</span>
                             </li>
                           ))}
                         </ul>
                       ) : (
-                        <p className="lottery-no-winners">Nenhum vencedor nesta rodada.</p>
+                        <p className="lottery-no-winners">No winner in this round.</p>
                       )}
                     </section>
                   )
@@ -258,34 +252,34 @@ export default function Lottery() {
             )}
 
             <section className="lottery-split">
-              <h3 className="lottery-split__title">Distribuição do prêmio</h3>
+              <h3 className="lottery-split__title">Prize distribution</h3>
               <div className="lottery-split__cards">
                 <div className="split-card split-card--prize">
                   <div className="split-card__pct">80%</div>
-                  <div className="split-card__label">Prêmio</div>
-                  <div className="split-card__desc">Dividido entre os vencedores sorteados</div>
+                  <div className="split-card__label">Prize</div>
+                  <div className="split-card__desc">Divided among the winners.</div>
                 </div>
                 <div className="split-card split-card--staking">
                   <div className="split-card__pct">10%</div>
                   <div className="split-card__label">Staking</div>
-                  <div className="split-card__desc">Proporcional ao stake de cada usuário</div>
+                  <div className="split-card__desc">Proportional to each user's stake.</div>
                 </div>
                 <div className="split-card split-card--burn">
                   <div className="split-card__pct">10%</div>
-                  <div className="split-card__label">Queima</div>
-                  <div className="split-card__desc">Removido permanentemente de circulação</div>
+                  <div className="split-card__label">Burn</div>
+                  <div className="split-card__desc">Permanently removed from circulation</div>
                 </div>
               </div>
             </section>
 
             <section className="lottery-rules">
-              <h3>Como funciona</h3>
+              <h3>How it works</h3>
               <ul>
-                <li>Cada usuário entra <strong>uma vez</strong> por rodada pagando {formatBalance(config?.entry_cost ?? 0)} LCKM.</li>
-                <li>Todo dia à meia-noite (UTC-03:00) o sorteio acontece automaticamente.</li>
-                <li><strong>{config?.winner_pct ?? 5}%</strong> dos participantes são sorteados como vencedores.</li>
-                <li><strong>{config?.prize_pool_pct ?? 80}%</strong> do total arrecadado é dividido igualmente entre os vencedores.</li>
-                <li>Uma nova rodada abre após o sorteio.</li>
+                <li>Each user enters <strong>once</strong> per round by paying {formatBalance(config?.entry_cost ?? 0)} LCKM.</li>
+                <li>Every day at midnight (UTC-03:00), the draw happens automatically.</li>
+                <li><strong>{config?.winner_pct ?? 5}%</strong> of participants are selected as winners.</li>
+                <li><strong>{config?.prize_pool_pct ?? 80}%</strong> of the total collected is evenly distributed among the winners.</li>
+                <li>A new round starts after the draw.</li>
               </ul>
             </section>
           </>

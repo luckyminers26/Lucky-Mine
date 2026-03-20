@@ -16,7 +16,6 @@ export default function Referral() {
   const [copied, setCopied] = useState(false)
   const [origin, setOrigin] = useState('')
 
-  // Captura origin após mount (evita erro de SSR/hydration)
   useEffect(() => { setOrigin(window.location.origin) }, [])
 
   const referralLink = profile?.referral_code && origin
@@ -26,7 +25,6 @@ export default function Referral() {
   const loadReferrals = useCallback(async () => {
     setLoading(true)
 
-    // Busca referrals
     const { data: refs, error } = await supabase
       .from('referrals')
       .select('id, lottery_count, rewarded, rewarded_at, created_at, referred_id')
@@ -36,9 +34,8 @@ export default function Referral() {
     if (error) { console.error('referrals error:', error.message); setLoading(false); return }
     if (!refs || refs.length === 0) { setReferrals([]); setLoading(false); return }
 
-    // Busca nomes dos referidos separadamente
     const ids = refs.map(r => r.referred_id)
-    // Usa view pública para evitar RLS bloqueando outros perfis
+
     const { data: profiles } = await supabase
       .from('profiles_public')
       .select('id, display_name')
@@ -64,7 +61,6 @@ export default function Referral() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      // fallback para browsers sem clipboard API
       const el = document.createElement('textarea')
       el.value = referralLink
       document.body.appendChild(el)
@@ -89,34 +85,34 @@ export default function Referral() {
         {/* Hero */}
         <div className="ref-hero">
           <div className="ref-hero__orb" />
-          <h1 className="ref-hero__title">Convide.<br />Ganhe.</h1>
+          <h1 className="ref-hero__title">Invite.<br />Earn.</h1>
           <p className="ref-hero__sub">
-            Convide até <strong>{MAX_REFERRALS}</strong> amigos.
-            Ganhe <strong>{REWARD_LCKM} LCKM</strong> por cada um que jogar
-            na loteria <strong>{LOTTERY_REQ} vezes</strong>.
+            Invite up to <strong>{MAX_REFERRALS}</strong> friends.
+            Earn <strong>{REWARD_LCKM} LCKM</strong> for each one who plays
+            the lottery <strong>{LOTTERY_REQ} times</strong>.
           </p>
         </div>
 
         {/* Link */}
         <div className="ref-card">
           <div className="ref-card__header">
-            <span className="ref-card__title">Seu link de convite</span>
+            <span className="ref-card__title">Your referral link</span>
             {slots > 0
-              ? <span className="ref-slots">{slots} vagas</span>
-              : <span className="ref-slots ref-slots--full">Limite atingido</span>
+              ? <span className="ref-slots">{slots} slots</span>
+              : <span className="ref-slots ref-slots--full">Limit reached</span>
             }
           </div>
 
           <div className="ref-link-wrap">
             <span className="ref-link-text">
-              {referralLink ?? (profile?.referral_code ? 'Carregando…' : 'Código não encontrado')}
+              {referralLink ?? (profile?.referral_code ? 'Loading…' : 'Code not found')}
             </span>
             <button
               className={`ref-copy-btn ${copied ? 'ref-copy-btn--copied' : ''}`}
               onClick={copyLink}
               disabled={!referralLink || slots === 0}
             >
-              {copied ? '✓ Copiado' : 'Copiar'}
+              {copied ? '✓ Copied' : 'Copy'}
             </button>
           </div>
         </div>
@@ -124,42 +120,41 @@ export default function Referral() {
         {/* Stats */}
         <div className="ref-stats">
           <div className="ref-stat">
-            <span className="ref-stat__label">Convidados</span>
+            <span className="ref-stat__label">Invited</span>
             <span className="ref-stat__value">
               {referrals.length}<span className="ref-stat__max">/{MAX_REFERRALS}</span>
             </span>
           </div>
           <div className="ref-stat">
-            <span className="ref-stat__label">Recompensados</span>
+            <span className="ref-stat__label">Rewarded</span>
             <span className="ref-stat__value">{rewarded}</span>
           </div>
           <div className="ref-stat">
-            <span className="ref-stat__label">Pendentes</span>
+            <span className="ref-stat__label">Pending</span>
             <span className="ref-stat__value">{pending}</span>
           </div>
           <div className="ref-stat">
-            <span className="ref-stat__label">LCKM ganhos</span>
+            <span className="ref-stat__label">LCKM earned</span>
             <span className="ref-stat__value ref-stat__value--mono">{totalEarned}.00000000</span>
           </div>
         </div>
 
-
-        {/* Lista de convidados */}
+        {/* List */}
         <div className="ref-card">
-          <span className="ref-card__title">Seus convidados</span>
+          <span className="ref-card__title">Your referrals</span>
 
           {loading ? (
             <div className="ref-loading">
-              <span className="ref-spinner" /> Carregando…
+              <span className="ref-spinner" /> Loading…
             </div>
           ) : referrals.length === 0 ? (
             <div className="ref-empty">
-              Nenhum convidado ainda. Compartilhe seu link!
+              No referrals yet. Share your link!
             </div>
           ) : (
             <ul className="ref-list">
               {referrals.map((r, i) => {
-                const name = r.profiles?.display_name ?? 'Usuário'
+                const name = r.profiles?.display_name ?? 'User'
                 const pct = Math.min(100, (r.lottery_count / LOTTERY_REQ) * 100)
                 return (
                   <li key={r.id} className="ref-item" style={{ '--d': `${i * 40}ms` }}>
@@ -167,11 +162,11 @@ export default function Referral() {
                       <div className="ref-item__info">
                         <span className="ref-item__name">{name}</span>
                         <span className="ref-item__count">
-                          {r.lottery_count}/{LOTTERY_REQ} loterias
+                          {r.lottery_count}/{LOTTERY_REQ} lotteries
                         </span>
                       </div>
                       <span className={`ref-item__status ${r.rewarded ? 'ref-item__status--done' : 'ref-item__status--pending'}`}>
-                        {r.rewarded ? `+${REWARD_LCKM} LCKM` : 'Pendente'}
+                        {r.rewarded ? `+${REWARD_LCKM} LCKM` : 'Pending'}
                       </span>
                     </div>
                     <div className="ref-progress">
@@ -184,14 +179,14 @@ export default function Referral() {
           )}
         </div>
 
-        {/* Como funciona */}
+        {/* How it works */}
         <div className="ref-how">
-          <span className="ref-how__title">Como funciona</span>
+          <span className="ref-how__title">How it works</span>
           <ol className="ref-how__steps">
-            <li>Copie seu link e envie para um amigo</li>
-            <li>O amigo se cadastra usando seu link</li>
-            <li>Quando ele jogar na loteria {LOTTERY_REQ} vezes…</li>
-            <li>Você recebe <strong>{REWARD_LCKM} LCKM</strong> automaticamente 🎉</li>
+            <li>Copy your link and send it to a friend</li>
+            <li>Your friend signs up using your link</li>
+            <li>When they play the lottery {LOTTERY_REQ} times…</li>
+            <li>You automatically earn <strong>{REWARD_LCKM} LCKM</strong> 🎉</li>
           </ol>
         </div>
 

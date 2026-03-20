@@ -15,7 +15,7 @@ const USDT_ABI = [
 ]
 
 function fmt8(val) {
-  return Number(val ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 8 })
+  return Number(val ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })
 }
 
 function PremiumBadge({ type }) {
@@ -181,8 +181,8 @@ export default function Premium() {
 
         <div className="prem-hero">
           <div className="prem-hero__orb" />
-          <h1 className="prem-hero__title">Mine mais.<br />Volte menos.</h1>
-          <p className="prem-hero__sub">Colete 24h de tokens com um clique. Pague em LCKM ou USDT.</p>
+          <h1 className="prem-hero__title">Minere mais.<br />Volte menos.</h1>
+          <p className="prem-hero__sub">Colete 24h de tokens com um clique.</p>
           {isPremium && (
             <PremiumBadge
               type={profile.premium_type}

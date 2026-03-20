@@ -33,8 +33,8 @@ export default function Header() {
 
           {showBalance
             ? Number(profile.balance ?? 0).toLocaleString("en-US", {
-              minimumFractionDigits: 8,
-              maximumFractionDigits: 8
+              minimumFractionDigits: 4,
+              maximumFractionDigits: 4
             })
             : "••••••••••"
           }
@@ -70,7 +70,7 @@ export default function Header() {
             <div className="header__menu-divider" />
 
             <Link to="/lottery" className="header__menu-item" onClick={() => setOpen(false)}>
-              <span>🎲</span> Loteria
+              <span>🎲</span> Lotto
             </Link>
 
             <Link to="/stats" className="header__menu-item" onClick={() => setOpen(false)}>
@@ -78,17 +78,21 @@ export default function Header() {
             </Link>
 
             <Link to="/referral" className="header__menu-item" onClick={() => setOpen(false)}>
-              <span>🔗</span> Indicações
+              <span>🔗</span> Referrals
             </Link>
 
             <Link to="/premium" className="header__menu-item" onClick={() => setOpen(false)}>
               <span>💎</span> Premium
             </Link>
 
+            <Link to="/betting" className="header__menu-item" onClick={() => setOpen(false)}>
+              <span>☘️</span> Betting
+            </Link>
+
             <div className="header__menu-divider" />
 
             <button className="header__menu-item header__menu-item--logout" onClick={handleSignOut}>
-              <span>→</span> Sair
+              <span>→</span> Logout
             </button>
           </div>
         )}

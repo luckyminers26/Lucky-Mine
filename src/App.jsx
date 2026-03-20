@@ -6,6 +6,7 @@ import Lottery     from './pages/Lottery'
 import Stats       from './pages/Stats'
 import Premium     from './pages/Premium'
 import Referral       from './pages/Referral'
+import Betting from './pages/Betting'
 
 function PrivateRoute({ children }) {
   const { session, loading } = useAuth()
@@ -31,6 +32,7 @@ function AppRoutes() {
       <Route path="/stats"    element={<PrivateRoute><Stats /></PrivateRoute>} />
       <Route path="/premium"  element={<PrivateRoute><Premium /></PrivateRoute>} />
       <Route path="/referral" element={<PrivateRoute><Referral /></PrivateRoute>} />
+      <Route path="/betting" element={<PrivateRoute><Betting /></PrivateRoute>} />
     </Routes>
   )
 }

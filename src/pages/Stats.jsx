@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabaseClient2'
 import Header from '../components/Header'
 import './Stats.css'
 
-function formatNum(val, decimals = 8) {
+function formatNum(val, decimals = 4) {
   return Number(val ?? 0).toLocaleString('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
@@ -77,7 +77,7 @@ export default function Stats() {
 
               <div className="stats-card stats-card--max">
                 <div className="stats-card__label">
-                  <span className="stats-card__icon">🏔</span> Supply Máximo
+                  <span className="stats-card__icon"></span> Max supply 
                 </div>
                 <div className="stats-card__value">{formatCompact(maxSupply)}</div>
                 <div className="stats-card__sub">{formatNum(maxSupply, 0)} LCKM</div>
@@ -85,39 +85,39 @@ export default function Stats() {
 
               <div className="stats-card stats-card--circ">
                 <div className="stats-card__label">
-                  <span className="stats-card__icon">🔄</span> Em Circulação
+                  <span className="stats-card__icon"></span> In Circulation
                 </div>
                 <div className="stats-card__value">{formatCompact(circulating)}</div>
-                <div className="stats-card__sub">{formatNum(circulating, 8)} LCKM</div>
+                <div className="stats-card__sub">{formatNum(circulating, 4)} LCKM</div>
               </div>
 
               <div className="stats-card stats-card--mined">
                 <div className="stats-card__label">
-                  <span className="stats-card__icon">⛏</span> Total Minerado
+                  <span className="stats-card__icon">⛏</span> Total mined
                 </div>
                 <div className="stats-card__value">{formatCompact(mined)}</div>
-                <div className="stats-card__sub">{formatNum(mined, 8)} LCKM</div>
+                <div className="stats-card__sub">{formatNum(mined, 4)} LCKM</div>
               </div>
 
               <div className="stats-card stats-card--burned">
                 <div className="stats-card__label">
-                  <span className="stats-card__icon">🔥</span> Queimado
+                  <span className="stats-card__icon">🔥</span> Burned
                 </div>
                 <div className="stats-card__value">{formatCompact(burned)}</div>
-                <div className="stats-card__sub">{formatNum(burned, 8)} LCKM</div>
+                <div className="stats-card__sub">{formatNum(burned, 4)} LCKM</div>
               </div>
 
               <div className="stats-card stats-card--staking">
                 <div className="stats-card__label">
-                  <span className="stats-card__icon">🔒</span> Em Staking
+                  <span className="stats-card__icon">🔒</span> Staked
                 </div>
                 <div className="stats-card__value">{formatCompact(staking)}</div>
-                <div className="stats-card__sub">{formatNum(staking, 8)} LCKM</div>
+                <div className="stats-card__sub">{formatNum(staking, 4)} LCKM</div>
               </div>
 
               <div className="stats-card stats-card--reserve">
                 <div className="stats-card__label">
-                  <span className="stats-card__icon">📦</span> Reserva Staking
+                  <span className="stats-card__icon">📦</span> Staking Reserve
                 </div>
                 <div className="stats-card__value">{formatCompact(reserve)}</div>
               </div>

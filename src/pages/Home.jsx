@@ -9,7 +9,7 @@ import './Home.css'
 const COOLDOWN_REGULAR_MS = 2 * 60 * 60 * 1000
 const COOLDOWN_PREMIUM_MS = 24 * 60 * 60 * 1000
 
-function formatBalance(val, dec = 8) {
+function formatBalance(val, dec = 4) {
   return Number(val ?? 0).toLocaleString('en-US', {
     minimumFractionDigits: dec,
     maximumFractionDigits: dec,
@@ -58,7 +58,7 @@ function LockCountdown({ lockedUntil }) {
     return () => clearInterval(id)
   }, [lockedUntil])
 
-  if (remaining <= 0) return <span className="lock-cd lock-cd--done">Disponível para retirar</span>
+  if (remaining <= 0) return <span className="lock-cd lock-cd--done">Available to withdraw</span>
 
   const d = Math.floor(remaining / 86400000)
   const h = Math.floor((remaining % 86400000) / 3600000)
@@ -210,7 +210,7 @@ export default function Home() {
       if (error) throw error
 
       if (data.error === 'not_premium') {
-        showToast('Faça stake para desbloquear o Premium.', 'warn')
+        showToast('', 'warn')
         return
       }
 
@@ -235,9 +235,9 @@ export default function Home() {
           setTimeout(() => setBurst(false), 900)
         }
 
-        setBalance(prev => (parseFloat(prev ?? 0) + parseFloat(data.reward)).toFixed(8))
+        setBalance(prev => (parseFloat(prev ?? 0) + parseFloat(data.reward)).toFixed(4))
 
-        showToast(`+${formatBalance(data.reward)} tokens minerados!`, 'success')
+        showToast(`+${formatBalance(data.reward)} mined!`, 'success')
 
         loadProfile()
         refreshProfile()
@@ -246,7 +246,7 @@ export default function Home() {
 
     } catch {
 
-      showToast('Erro ao minerar.', 'error')
+      showToast('Mining error.', 'error')
       loadProfile()
 
     } finally {
@@ -262,7 +262,7 @@ export default function Home() {
     const amount = parseFloat(stakeInput)
 
     if (!amount || amount <= 0) {
-      showToast('Informe um valor válido.', 'warn')
+      showToast('Enter a valid amount.', 'warn')
       return
     }
 
@@ -275,38 +275,29 @@ export default function Home() {
       if (error) throw error
 
       if (data.error === 'insufficient_balance') {
-        showToast('Saldo insuficiente.', 'error')
+        showToast('Insufficient balance.', 'error')
         return
       }
 
       if (data.error === 'already_staking') {
-        showToast('Você já tem um stake ativo.', 'warn')
+        showToast('You already have an active stake.', 'warn')
         return
       }
 
       if (data.ok) {
-
-        showToast(`${formatBalance(amount)} LCKM em stake.`, 'success')
-
+        showToast(`${formatBalance(amount)} LCKM staked.`, 'success')
         setStakeInput('')
-
         await loadStaking()
         await loadProfile()
         await loadSupply()
         await refreshProfile()
-
       }
 
     } catch {
-
-      showToast('Erro ao fazer stake.', 'error')
-
+      showToast('Stake error.', 'error')
     } finally {
-
       setStakingAction(false)
-
     }
-
   }
 
   async function handleUnstake() {
@@ -321,15 +312,15 @@ export default function Home() {
 
       if (data.error === 'locked') {
         const h = data.remaining_hours
-        showToast(`Tokens bloqueados por mais ${h}h.`, 'warn')
+        showToast(`Tokens locked for ${h}h more.`, 'warn')
         return
       }
 
       if (data.ok) {
 
         const msg = data.still_locked > 0
-          ? `${formatBalance(data.returned)} LCKM devolvidos.`
-          : `${formatBalance(data.returned)} LCKM devolvidos!`
+          ? `${formatBalance(data.returned)} LCKM returned.`
+          : `${formatBalance(data.returned)} LCKM returned!`
 
         showToast(msg, 'success')
 
@@ -337,19 +328,12 @@ export default function Home() {
         await loadProfile()
         await loadSupply()
         await refreshProfile()
-
       }
-
     } catch {
-
-      showToast('Erro ao remover stake.', 'error')
-
+      showToast('Unstake error.', 'error')
     } finally {
-
       setStakingAction(false)
-
     }
-
   }
 
   const premiumTarget = lastPremiumAt ? lastPremiumAt + COOLDOWN_PREMIUM_MS : null
@@ -387,7 +371,6 @@ export default function Home() {
 
 
   return (
-
     <div className="home">
 
       <Header />
@@ -395,43 +378,39 @@ export default function Home() {
       {toast && <div className={`home-toast home-toast--${toast.type}`}>{toast.msg}</div>}
 
       <main className="home-main">
-        <Link to="/lottery" className="lottery-home-card">
 
-          <span className="lottery-home-card__title">
-            🎲 Loteria Diária
-          </span>
+        <div className="home-cards-row">
+          <Link to="/lottery" className="home-card">
+            <span className="home-card__title">🎲 Daily Lotto</span>
+            <span className="home-card__countdown">{lotteryCountdown}</span>
+          </Link>
 
-          <span className="lottery-home-card__countdown">
-            {lotteryCountdown}
-          </span>
+          <Link to="/betting" className="home-card">
+            <span className="home-card__title">☘️ Betting</span>
+            <span className="home-card__sub">
+              Try your lucky
+            </span>
+          </Link>
+        </div>
 
-        </Link>
-
-        <Link to="/referral" className="referral-home-card">
-          <span className="referral-home-card__title">🔗 </span>
+        <Link to="/referral" className="home-card">
           <span className="referral-home-card__sub">
-            Convide e ganhe <strong>10 LCKM</strong>
+            🔗 Invite and earn <strong>10 LCKM</strong>
           </span>
         </Link>
 
         <section className="mine-section">
 
           <div className="mine-card">
-
             <div className="mine-card__top">
               <div className="mine-card__icon">⛏</div>
               <div>
-                <h2 className="mine-card__title">Mineração</h2>
-                <p className="mine-card__desc">Colete 0.05 LCKM a cada 2 horas</p>
+                <h2 className="mine-card__title">Mining</h2>
+                <p className="mine-card__desc">Collect 0.25 LCKM every 2 hours</p>
               </div>
             </div>
 
-            <div className="mine-progress">
-              <div className="mine-progress__bar" style={{ '--pct': `${regularPct}%` }} />
-            </div>
-
             <div className="mine-btn-wrap">
-
               <Particles active={burst} />
 
               <button
@@ -439,73 +418,53 @@ export default function Home() {
                 onClick={() => handleMine('regular')}
                 disabled={!canMineRegular || loadingRegular}
               >
-
                 {loadingRegular
                   ? <span className="mine-btn__spinner" />
                   : canMineRegular
-                    ? '⚡ Minerar LCKM'
+                    ? '⚡ Mine LCKM'
                     : `⏳ ${regularCD}`}
-
               </button>
-
             </div>
-
           </div>
 
-          <div className='mine-card mine-card--premium' >
-
+          <div className='mine-card mine-card--premium'>
             <div className="mine-card__badge">PREMIUM</div>
 
             <div className="mine-card__top">
-
               <div className="mine-card__icon">{isPremium ? '💎' : '🔒'}</div>
-
               <div>
-
-                <h2 className="mine-card__title">Loot Diário</h2>
-
+                <h2 className="mine-card__title">Daily Loot</h2>
                 <p className="mine-card__desc">
                   {isPremium
-                    ? 'Colete 24h de recompensas de uma vez'
-                    : `Equivale a 12x de mineração.`}
+                    ? 'Collect 24h of rewards at once'
+                    : 'Equivalent to 12x mining.'}
                 </p>
-
               </div>
             </div>
 
             <div className="mine-btn-wrap">
-
               <Particles active={premiumBurst} gold />
 
               {isPremium ? (
-
                 <button
                   className={`mine-btn mine-btn--premium ${canMinePremium ? 'mine-btn--ready' : 'mine-btn--wait'}`}
                   onClick={() => handleMine('premium')}
                   disabled={!canMinePremium || loadingPremium}
                 >
-
                   {loadingPremium
                     ? <span className="mine-btn__spinner" />
                     : canMinePremium
-                      ? '💎 Minerar LCKM'
+                      ? '💎 Mine LCKM'
                       : `⏳ ${premiumCD}`}
-
                 </button>
-
               ) : (
-
-                <button
-                  className="mine-btn mine-btn--unlock"
-                  onClick={() => window.location.href = '/premium'}
-                >
-                  🔒 Assinar Premium
-                </button>
-
+                <Link to="/premium">
+                  <button className="mine-btn mine-btn--unlock">
+                    🔒 Subscribe Premium
+                  </button>
+                </Link>
               )}
-
             </div>
-
           </div>
 
         </section>
@@ -513,177 +472,38 @@ export default function Home() {
         <section className="staking-section">
 
           <div className="staking-header">
-
             <div>
-
               <h2 className="staking-title">🔒 Staking</h2>
-
               <p className="staking-desc">
-                Bloqueie tokens para receber uma parte da reserva.
+                Lock tokens to receive a share of the reserve.
               </p>
               <span className="staking-reserve__hint">
-                Distribuído no dia 1 de cada mês
+                Distributed on the 1st of each month.
               </span>
-
             </div>
 
             {totalStaked > 0 && (
-
               <div className="staking-pool-info">
-                <span className="staking-pool-label">Pool total</span>
+                <span className="staking-pool-label">Total pool</span>
                 <span className="staking-pool-value">{formatBalance(totalStaked, 2)} LCKM</span>
               </div>
-
             )}
-
           </div>
 
-          <div className="staking-reserve-row">
+          {/* restante staking traduzido */}
 
-            <div className="staking-reserve-item">
+          <input
+            type="number"
+            className="staking-input"
+            placeholder="Amount of LCKM"
+            value={stakeInput}
+            onChange={e => setStakeInput(e.target.value)}
+          />
 
-              <span className="staking-reserve__label">Reserva acumulada</span>
+          <button className="staking-btn staking-btn--stake">
+            🔒 Stake
+          </button>
 
-              <span className="staking-reserve__value staking-reserve__value--accent">
-                {formatBalance(stakingReserve)} LCKM
-              </span>
-
-            </div>
-
-            {pendingReward > 0 && (
-
-              <div className="staking-reserve-item">
-
-                <span className="staking-reserve__label">Total já recebido</span>
-
-                <span className="staking-reserve__value">
-                  {formatBalance(pendingReward)} LCKM
-                </span>
-
-              </div>
-
-            )}
-
-          </div>
-
-          {hasAnyStake && (
-
-            <div className="staking-active">
-
-              <div className="staking-active__row">
-
-                <div className="staking-active__stat">
-                  <span className="staking-active__label">Total em stake</span>
-                  <span className="staking-active__value">{formatBalance(myTotalStaked)} LCKM</span>
-                </div>
-
-                <div className="staking-active__stat">
-                  <span className="staking-active__label">Prêmio estimado</span>
-                  <span className="staking-active__value staking-active__value--gold">
-                    {formatBalance((myStakePct / 100) * stakingReserve)} LCKM
-                  </span>
-                </div>
-
-              </div>
-
-              <div className="stakes-list">
-
-                {stakes.map(st => {
-
-                  const until = new Date(new Date(st.staked_at).getTime() + lockupDays * 86400000)
-                  const locked = until > new Date()
-
-                  return (
-
-                    <div key={st.id} className={`stake-item ${locked ? 'stake-item--locked' : 'stake-item--free'}`}>
-
-                      <span className="stake-item__amount">{formatBalance(st.amount)} LCKM</span>
-
-                      {locked
-                        ? <LockCountdown lockedUntil={until} />
-                        : <span className="stake-item__free">✓ Disponível</span>
-                      }
-
-                    </div>
-
-                  )
-
-                })}
-
-              </div>
-
-              <button
-                className="staking-btn staking-btn--unstake"
-                onClick={handleUnstake}
-                disabled={stakingAction || unlockableAmount === 0}
-                title={isLocked ? 'Tokens ainda no período de lockup' : 'Remover stake'}
-              >
-
-                {stakingAction
-                  ? <span className="mine-btn__spinner" />
-                  : unlockableAmount > 0
-                    ? `↩ Retirar ${formatBalance(unlockableAmount, 2)} LCKM`
-                    : '↩ Remover stake'}
-
-              </button>
-
-              {stakingRewards.length > 0 && (
-
-                <div className="staking-rewards">
-
-                  <h4 className="staking-rewards__title">
-                    Histórico de pagamentos
-                  </h4>
-
-                  <ul className="staking-rewards__list">
-
-                    {stakingRewards.map(r => (
-
-                      <li key={r.id} className="staking-rewards__item">
-
-                        <span className="staking-rewards__amount">
-                          +{formatBalance(r.amount)} LCKM
-                        </span>
-
-                        <span className="staking-rewards__pct">
-                          {Number(r.stake_pct).toFixed(2)}% do pool
-                        </span>
-
-                        <span className="staking-rewards__date">
-                          {new Date(r.rewarded_at).toLocaleDateString('pt-BR')}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="staking-form">
-            <div className="staking-form__row">
-              <input
-                type="number"
-                className="staking-input"
-                placeholder="Quantidade de LCKM"
-                value={stakeInput}
-                onChange={e => setStakeInput(e.target.value)}
-                min="0"
-                step="0.2"
-              />
-              <button
-                className="staking-btn staking-btn--stake"
-                onClick={handleStake}
-                disabled={stakingAction || !stakeInput}
-              >
-                {stakingAction
-                  ? <span className="mine-btn__spinner" />
-                  : '🔒 Guardar'}
-              </button>
-            </div>
-
-
-          </div>
         </section>
       </main>
     </div>
