@@ -113,9 +113,9 @@ export default function Lottery() {
       const { data, error } = await supabase.rpc('enter_lottery')
       if (error) throw error
 
-      if (data.error === 'already_entered') { showToast('Você já está nesta rodada!', 'warn'); return }
-      if (data.error === 'insufficient_balance') { showToast('Saldo insuficiente.', 'error'); return }
-      if (data.error === 'no_open_lottery') { showToast('Nenhuma rodada aberta.', 'warn'); return }
+      if (data.error === 'already_entered') { showToast('You are already in!', 'warn'); return }
+      if (data.error === 'insufficient_balance') { showToast('Insufficient balance.', 'error'); return }
+      if (data.error === 'no_open_lottery') { showToast('none open round.', 'warn'); return }
 
       if (data.ok) {
         showToast(`Ticket #${data.ticket_num} Confirmed! Good luck 🎲`, 'success')

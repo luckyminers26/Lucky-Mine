@@ -81,10 +81,10 @@ export default function Premium() {
       if (error) throw error
       if (data.error) {
         const msgs = {
-          insufficient_balance: `Saldo insuficiente. Necessário: ${fmt8(data.required)} LCKM`,
-          already_lifetime: 'Você já tem Premium Vitalício.',
-          already_active: 'Plano mensal já ativo.',
-          lifetime_slots_full: 'Todas as vagas vitalícias foram preenchidas.',
+          insufficient_balance: `Insufficient balance.`,
+          already_lifetime: 'You already have lifetime premium.',
+          already_active: 'You already have monthly sub.',
+          lifetime_slots_full: 'No vacancy :D',
         }
         setError(msgs[data.error] ?? data.error)
         return

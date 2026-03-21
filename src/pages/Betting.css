@@ -107,11 +107,6 @@
   text-shadow: 0 0 20px rgba(240, 180, 41, 0.4);
 }
 
-.bet-hero__jackpot-sub {
-  font-size: 0.68rem;
-  color: #9090a8;
-}
-
 /* ── jackpot winner modal ─────────────────────────────────── */
 .bet-jackpot-overlay {
   position: fixed;
@@ -889,14 +884,6 @@
   text-transform: uppercase;
   color: #9090a8;
   margin: 0;
-}
-
-.bet-winners__empty {
-  font-size: 0.82rem;
-  color: #9090a8;
-  text-align: center;
-  margin: 0;
-  padding: 0.5rem 0;
 }
 
 .bet-winners__list {

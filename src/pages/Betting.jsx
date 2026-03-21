@@ -49,13 +49,11 @@ function parseSafe(str) {
 
 function validateBet(raw, bal) {
   const amt = parseSafe(raw)
-  if (amt === null || amt < MIN_BET) return { ok: false, msg: `Mínimo ${fmt(MIN_BET)}` }
-  if (amt > bal) return { ok: false, msg: 'Saldo insuficiente' }
+  if (amt === null || amt < MIN_BET) return { ok: false, msg: `Min. ${fmt(MIN_BET)}` }
+  if (amt > bal) return { ok: false, msg: 'Insufficient balance' }
   return { ok: true, amt }
 }
 
-/* Toda lógica de roll e jackpot é server-side.
-   O cliente apenas exibe o que o banco retorna. */
 
 export default function Betting() {
   const { profile, refreshProfile } = useAuth()
@@ -142,11 +140,11 @@ export default function Betting() {
       if (data?.error === 'rate_limited') return null
 
       const msg =
-        data?.error === 'insufficient' ? 'Saldo insuficiente.' :
-          data?.error === 'below_minimum' ? 'Aposta abaixo do mínimo.' :
-            data?.error === 'invalid_chance' ? 'Chance inválida.' :
-              data?.error === 'not_found' ? 'Perfil não encontrado.' :
-                `Erro: ${data?.error ?? error?.message ?? 'desconhecido'}`
+        data?.error === 'insufficient' ? 'Insufficient balance.' :
+          data?.error === 'below_minimum' ? 'Bet too low.' :
+            data?.error === 'invalid_chance' ? 'Invalid.' :
+              data?.error === 'not_found' ? 'Profile fot found.' :
+                `Erro: ${data?.error ?? error?.message ?? 'unknown'}`
       autoRef.current = false
       setAutoOn(false)
       setRunning(false)
@@ -254,7 +252,7 @@ export default function Betting() {
       const bet = round4(clamp(currentBetRef.current, MIN_BET, curBal))
 
       if (curBal < MIN_BET) {
-        autoRef.current = false; setStopped('Saldo insuficiente.'); break
+        autoRef.current = false; setStopped('Insufficient balance.'); break
       }
 
       setCurrentBetDisplay(bet)
@@ -431,9 +429,6 @@ export default function Betting() {
               </div>
               <span className="bet-hero__jackpot-value">
                 {jackpotPool !== null ? fmtBR(jackpotPool) : '——'}
-              </span>
-              <span className="bet-hero__jackpot-sub">
-                {jackpotStreak} apostas seguidas na mesma dezena → {fmtBRInt(jackpotPrize)} LCKM
               </span>
             </div>
           </div>
@@ -639,10 +634,10 @@ export default function Betting() {
 
           {/* ── histórico de vencedores ───────────────────── */}
           <div className="bet-winners">
-            <h3 className="bet-winners__title">🏆 Histórico de Jackpots</h3>
+            <h3 className="bet-winners__title">🏆 jackpot history</h3>
             {jackpotWinners.length === 0 ? (
               <p className="bet-winners__empty">
-                Nenhum vencedor ainda — seja o primeiro!
+                Be the first!
               </p>
             ) : (
               <ul className="bet-winners__list">
