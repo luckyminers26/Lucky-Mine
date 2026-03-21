@@ -421,7 +421,7 @@ export default function Home() {
                 {loadingRegular
                   ? <span className="mine-btn__spinner" />
                   : canMineRegular
-                    ? '⚡ Mine LCKM'
+                    ? '⚡ Claim LCKM'
                     : `⏳ ${regularCD}`}
               </button>
             </div>
@@ -454,7 +454,7 @@ export default function Home() {
                   {loadingPremium
                     ? <span className="mine-btn__spinner" />
                     : canMinePremium
-                      ? '💎 Mine LCKM'
+                      ? '💎 Claim LCKM'
                       : `⏳ ${premiumCD}`}
                 </button>
               ) : (
