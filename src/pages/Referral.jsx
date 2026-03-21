@@ -179,17 +179,6 @@ export default function Referral() {
           )}
         </div>
 
-        {/* How it works */}
-        <div className="ref-how">
-          <span className="ref-how__title">How it works</span>
-          <ol className="ref-how__steps">
-            <li>Copy your link and send it to a friend</li>
-            <li>Your friend signs up using your link</li>
-            <li>When they play the lottery {LOTTERY_REQ} times…</li>
-            <li>You automatically earn <strong>{REWARD_LCKM} LCKM</strong> 🎉</li>
-          </ol>
-        </div>
-
       </main>
     </div>
   )

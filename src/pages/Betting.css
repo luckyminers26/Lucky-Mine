@@ -117,12 +117,13 @@
   position: fixed;
   inset: 0;
   z-index: 500;
-  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.25rem;
+  padding: 0.5rem;
   animation: fadeIn 0.3s ease;
+
+  transform: translateY(-30%);
 }
 
 @keyframes fadeIn {
@@ -212,6 +213,7 @@
 }
 
 .bet-jackpot-modal__btn {
+  margin-top: 0.5rem;
   padding: 0.8rem 2.5rem;
   background: var(--gold);
   border: none;
@@ -226,56 +228,6 @@
 
 .bet-jackpot-modal__btn:hover {
   opacity: 0.85;
-}
-
-/* ── aposta atual com multiplicador (auto) ────────────────── */
-.bet-current-bet {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.55rem 0.9rem;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  transition: background 0.2s, border-color 0.2s;
-}
- 
-.bet-current-bet--active {
-  background: rgba(244,96,91,0.07);
-  border-color: rgba(244,96,91,0.3);
-}
- 
-.bet-current-bet__label {
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: #9090a8;
-}
- 
-.bet-current-bet__value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: color 0.2s;
-}
- 
-.bet-current-bet--active .bet-current-bet__value {
-  color: var(--red);
-}
- 
-.bet-current-bet__mult {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--red);
-  background: rgba(244,96,91,0.12);
-  border: 1px solid rgba(244,96,91,0.25);
-  border-radius: 4px;
-  padding: 1px 5px;
 }
 
 /* ── carrossel ────────────────────────────────────────────── */
@@ -912,4 +864,121 @@
   .bet-hero__jackpot-value {
     font-size: 1.7rem;
   }
+}
+/* ── input mult ───────────────────────────────────────────── */
+.bet-input--mult {
+  border-color: rgba(244,96,91,0.5) !important;
+  color: var(--red) !important;
+}
+
+/* ── jackpot winners ──────────────────────────────────────── */
+.bet-winners {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bet-winners__title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9090a8;
+  margin: 0;
+}
+
+.bet-winners__empty {
+  font-size: 0.82rem;
+  color: #9090a8;
+  text-align: center;
+  margin: 0;
+  padding: 0.5rem 0;
+}
+
+.bet-winners__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bet-winners__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.bet-winners__item:first-child {
+  border-color: rgba(240,180,41,0.3);
+  background: rgba(240,180,41,0.05);
+}
+
+.bet-winners__rank {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #9090a8;
+  font-family: 'JetBrains Mono', monospace;
+  min-width: 28px;
+}
+
+.bet-winners__item:first-child .bet-winners__rank {
+  color: var(--gold);
+}
+
+.bet-winners__name {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.bet-winners__amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+/* ── botão ? (how-to jackpot) ─────────────────────────────── */
+.bet-howto-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(240,180,41,0.4);
+  background: rgba(240,180,41,0.1);
+  color: var(--gold);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.bet-howto-btn:hover {
+  background: rgba(240,180,41,0.2);
+}
+
+/* ── jackpot modal breakdown ──────────────────────────────── */
+.bet-jackpot-modal__breakdown {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #9090a8;
 }

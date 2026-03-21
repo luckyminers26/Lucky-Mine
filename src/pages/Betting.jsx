@@ -9,8 +9,8 @@ import './Betting.css'
 const MIN_BET = 0.0001
 const CAROUSEL_MAX = 40
 const AUTO_DELAY = 900
-// JACKPOT_MULT existe só para exibição no front — a lógica real está no SQL
-const JACKPOT_MULT = 9500
+// Chance jackpot: (10/100)^6 ≈ 1 em 1.000.000 (7 consecutivos)
+const JACKPOT_CHANCE_DISPLAY = '1 em 1.000.000'
 
 /* payout = 0.99 / chance  (house edge 1%) */
 function calcPayout(chancePct) {
@@ -21,6 +21,26 @@ function calcPayout(chancePct) {
 const fmt = n => Number(n).toFixed(4)
 const round4 = n => Math.round(n * 10000) / 10000
 const clamp = (v, mn, mx) => Math.max(mn, Math.min(mx, v))
+
+// Formato pt-BR: separador de milhar = ponto, decimal = vírgula
+// fmtBR(98000.5465)  → "98.000,5465"
+// fmtBR(1000)        → "1.000"
+// fmtBR(0.0001)      → "0,0001"
+const fmtBR = n => {
+  const num = Number(n)
+  if (!isFinite(num)) return '——'
+  // Remove zeros decimais desnecessários mas mantém até 4 casas
+  const str = num.toFixed(4).replace(/\.?0+$/, '')
+  const [intPart, decPart] = str.split('.')
+  const intFormatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  return decPart ? `${intFormatted},${decPart}` : intFormatted
+}
+
+// Sem casas decimais: fmtBRInt(1000) → "1.000"
+const fmtBRInt = n => {
+  const num = Math.round(Number(n))
+  return num.toLocaleString('pt-BR')
+}
 
 function parseSafe(str) {
   const n = parseFloat(str)
@@ -42,7 +62,7 @@ export default function Betting() {
   const navigate = useNavigate()
 
   const [balance, setBalance] = useState(null)
-  const [jackpotPool, setJackpot] = useState(null)
+  const [jackpotInfo, setJackpotInfo] = useState(null) // {pool, prize, streak_req, winners}
   const [betInput, setBetInput] = useState('')
   const [chancePct, setChancePct] = useState(50)
   const [multInput, setMultInput] = useState('2')
@@ -55,7 +75,8 @@ export default function Betting() {
   const [history, setHistory] = useState([])
   const [stats, setStats] = useState({ wins: 0, losses: 0, net: 0, streak: 0 })
   const [jackpotModal, setJackpotModal] = useState(null)
-  const [currentBetDisplay, setCurrentBetDisplay] = useState(null) // aposta atual no auto (com mult)
+  const [jackpotHowTo, setJackpotHowTo] = useState(false)
+  const [currentBetDisplay, setCurrentBetDisplay] = useState(null)
 
   /* ── refs ── */
   const autoRef = useRef(false)
@@ -78,10 +99,10 @@ export default function Betting() {
     }
   }, [profile])
 
-  /* busca jackpot pool ao montar */
+  /* busca jackpot info ao montar */
   useEffect(() => {
-    supabase.rpc('get_jackpot_pool').then(({ data }) => {
-      if (data != null) setJackpot(Number(data))
+    supabase.rpc('get_jackpot_info').then(({ data }) => {
+      if (data) setJackpotInfo(data)
     })
   }, [])
 
@@ -110,7 +131,6 @@ export default function Betting() {
     const amt = round4(clamp(amount, MIN_BET, balanceRef.current ?? 0))
     if (amt < MIN_BET) return null
 
-    /* cliente envia APENAS o valor e a chance — banco decide tudo */
     const { data, error } = await supabase.rpc('bet_token', {
       p_amount: amt,
       p_chance: chance,
@@ -119,7 +139,6 @@ export default function Betting() {
     if (!mountedRef.current) return null
 
     if (error || !data || data.error) {
-      /* rate_limited: silencioso — o loop auto já tem AUTO_DELAY, apenas ignora */
       if (data?.error === 'rate_limited') return null
 
       const msg =
@@ -136,7 +155,6 @@ export default function Betting() {
       return null
     }
 
-    /* tudo vem do servidor */
     const roll = data.roll
     const won = data.won
     const newBal = Number(data.balance)
@@ -145,14 +163,21 @@ export default function Betting() {
     const jackpotAmt = Number(data.jackpot_amt ?? 0)
 
     rollHistRef.current = (data.roll_hist ?? [])
-
     balanceRef.current = newBal
     setBalance(newBal)
 
-    /* pool local */
-    setJackpot(prev => {
-      if (jackpotHit) return 0
-      return round4((prev ?? 0) + (won ? 0 : amt))
+    /* atualiza pool local: perde → sobe, ganha → desce */
+    setJackpotInfo(prev => {
+      if (!prev) return prev
+      if (jackpotHit) {
+        /* re-busca do banco para atualizar pool e winners */
+        supabase.rpc('get_jackpot_info').then(({ data: d }) => {
+          if (d && mountedRef.current) setJackpotInfo(d)
+        })
+        return prev
+      }
+      const poolDelta = won ? -round4(amt * (calcPayout(chance) - 1)) : amt
+      return { ...prev, pool: round4((prev.pool ?? 0) + poolDelta) }
     })
 
     /* carrossel */
@@ -178,16 +203,17 @@ export default function Betting() {
       setAutoOn(false)
       setCurrentBetDisplay(null)
       setJackpotModal({
-        nums: rollHistRef.current.slice(0, 5),
+        nums: rollHistRef.current.slice(0, jackpotInfo?.streak_req ?? 7),
         amt: jackpotAmt,
-        base: baseAmount,
+        burnAmt: Number(data.burn_amt ?? 0),
+        stakingAmt: Number(data.staking_amt ?? 0),
       })
       return { won, newBal, delta, jackpotHit: true, jackpotAmt }
     }
 
     showToast(won ? 'win' : 'loss', won ? `+${fmt(delta)}` : fmt(delta))
     return { won, newBal, delta, jackpotHit: false, jackpotAmt: 0 }
-  }, [])
+  }, [jackpotInfo])
 
   /* ── manual ──────────────────────────────────────────────── */
   async function handleManualBet() {
@@ -231,14 +257,12 @@ export default function Betting() {
         autoRef.current = false; setStopped('Saldo insuficiente.'); break
       }
 
-      /* atualiza display antes de cada aposta */
       setCurrentBetDisplay(bet)
       setRunning(true)
       const res = await placeBet(bet, v.amt, chance)
       if (!mountedRef.current) break
       setRunning(false)
 
-      /* rate_limited: apenas aguarda o próximo ciclo sem quebrar o loop */
       if (!res) {
         await new Promise(r => setTimeout(r, AUTO_DELAY))
         continue
@@ -246,7 +270,6 @@ export default function Betting() {
 
       if (res.jackpotHit) { autoRef.current = false; break }
 
-      /* calcula próxima aposta: multiplica em derrota, reseta em vitória */
       currentBetRef.current = res.won
         ? v.amt
         : round4(clamp(bet * mult, MIN_BET, res.newBal))
@@ -284,7 +307,13 @@ export default function Betting() {
   const payout = calcPayout(chancePct)
   const netCls = stats.net >= 0 ? 'bet-stat__value--green' : 'bet-stat__value--red'
   const netCard = stats.net >= 0 ? 'bet-stat--net-pos' : 'bet-stat--net-neg'
-  const multActive = currentBetDisplay !== null && currentBetDisplay > betBase
+  const multActive = currentBetDisplay !== null && betBase > 0
+    && (currentBetDisplay - betBase) > 0.00005
+
+  const jackpotPool = jackpotInfo?.pool ?? null
+  const jackpotPrize = jackpotInfo?.prize ?? 1000
+  const jackpotStreak = jackpotInfo?.streak_req ?? 7
+  const jackpotWinners = jackpotInfo?.winners ?? []
 
   function setQuick(fn) {
     setBetInput(fmt(round4(Math.max(fn(bal), MIN_BET))))
@@ -304,14 +333,22 @@ export default function Betting() {
     <>
       <Header />
 
-      {/* ── modal jackpot ───────────────────────────────────── */}
+      {/* ── toast ─────────────────────────────────────────── */}
+      {toast && (
+        <div key={toast.key} className={`bet-toast bet-toast--${toast.type}`}>
+          {toast.type === 'win' ? '✦ ' : toast.type === 'loss' ? '✕ ' : '⚠ '}
+          {toast.msg}
+        </div>
+      )}
+
+      {/* ── modal jackpot ─────────────────────────────────── */}
       {jackpotModal && (
         <div className="bet-jackpot-overlay">
           <div className="bet-jackpot-modal">
             <span className="bet-jackpot-modal__emoji">🏆</span>
             <h2 className="bet-jackpot-modal__title">JACKPOT!</h2>
             <p style={{ color: '#9090a8', fontSize: '0.82rem', margin: 0 }}>
-              Últimos 5 números com a mesma dezena!
+              {jackpotStreak} consecutive numbers in the same ten!
             </p>
             <div className="bet-jackpot-modal__nums">
               {jackpotModal.nums.map((n, i) => (
@@ -321,14 +358,23 @@ export default function Betting() {
               ))}
             </div>
             <div className="bet-jackpot-modal__prize">
-              +{fmt(jackpotModal.amt)} LCKM
+              +{fmtBRInt(jackpotModal.amt)} LCKM
             </div>
-            <p className="bet-jackpot-modal__sub" />
+            {(jackpotModal.burnAmt > 0 || jackpotModal.stakingAmt > 0) && (
+              <div className="bet-jackpot-modal__breakdown">
+                {jackpotModal.burnAmt > 0 && (
+                  <span>🔥 {fmtBRInt(jackpotModal.burnAmt)} Burned</span>
+                )}
+                {jackpotModal.stakingAmt > 0 && (
+                  <span>💎 {fmtBRInt(jackpotModal.stakingAmt)} Staking</span>
+                )}
+              </div>
+            )}
             <button
               className="bet-jackpot-modal__btn"
               onClick={() => { setJackpotModal(null); refreshProfile() }}
             >
-              Fechar 🎉
+              Close 🎉
             </button>
           </div>
         </div>
@@ -337,17 +383,56 @@ export default function Betting() {
       <div className="bet-page">
         <main className="bet-main">
 
+          {/* ── modal how-to jackpot ──────────────────────── */}
+          {jackpotHowTo && (
+            <div className="bet-jackpot-overlay" onClick={() => setJackpotHowTo(false)}>
+              <div className="bet-jackpot-modal" onClick={e => e.stopPropagation()}>
+                <h2 className="bet-jackpot-modal__title" style={{ fontSize: '1.2rem' }}>
+                  How to win the Jackpot?
+                </h2>
+                <div style={{ textAlign: 'left', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text)', margin: 0 }}>
+                     If the last <strong>{jackpotStreak} drawn numbers</strong> all belong
+                    to the <strong>same decade</strong> like 1x (11-12-13-14-15-16-13), you win the jackpot.
+                  </p>
+                  <div style={{ display: 'flex',flexDirection: 'column', gap: 4 }}>
+                    <p style={{ fontSize: '1rem', color: '#9090a8', margin: 0 }}>
+                      🏆 Prize: <strong style={{ color: 'var(--gold)' }}>{fmtBRInt(jackpotPrize)} LCKM</strong>
+                    </p>
+                    <p style={{ fontSize: '1rem', color: '#9090a8', margin: 0 }}>
+                      🔥 Burned: <strong style={{ color: 'var(--red)' }}>500</strong>
+                    </p>
+                    <p style={{ fontSize: '1rem', color: '#9090a8', margin: 0 }}>
+                      💎 Staking: <strong style={{ color: 'var(--accent)' }}>500</strong>
+                    </p>
+                  </div>
+                </div>
+                <button className="bet-jackpot-modal__btn" onClick={() => setJackpotHowTo(false)}>
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* ── hero — jackpot pool ────────────────────────── */}
           <div className="bet-hero">
             <div className="bet-hero__orb" />
             <h1 className="bet-hero__title">🎲 Apostas</h1>
             <div className="bet-hero__jackpot">
-              <span className="bet-hero__jackpot-label">🏆 Jackpot</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="bet-hero__jackpot-label">🏆 Jackpot Pool</span>
+                <button
+                  className="bet-howto-btn"
+                  onClick={() => setJackpotHowTo(true)}
+                  title="Como funciona o jackpot?"
+                >?</button>
+              </div>
               <span className="bet-hero__jackpot-value">
-                {jackpotPool !== null ? fmt(jackpotPool) : '——'}
+                {jackpotPool !== null ? fmtBR(jackpotPool) : '——'}
               </span>
               <span className="bet-hero__jackpot-sub">
-                5 apostas seguidas na mesma dezena (0x–9x)
+                {jackpotStreak} apostas seguidas na mesma dezena → {fmtBRInt(jackpotPrize)} LCKM
               </span>
             </div>
           </div>
@@ -365,22 +450,18 @@ export default function Betting() {
               </div>
               <input
                 className="bet-slider"
-                type="range"
-                min="1" max="95" step="1"
+                type="range" min="1" max="95" step="1"
                 value={chancePct}
                 onChange={e => setChancePct(Number(e.target.value))}
                 disabled={autoOn}
               />
               <div className="bet-chance-presets">
                 {PRESETS.map(p => (
-                  <button
-                    key={p}
+                  <button key={p}
                     className={`bet-preset-btn ${chancePct === p ? 'bet-preset-btn--active' : ''}`}
                     disabled={autoOn}
                     onClick={() => setChancePct(p)}
-                  >
-                    {p}%
-                  </button>
+                  >{p}%</button>
                 ))}
               </div>
             </div>
@@ -419,17 +500,25 @@ export default function Betting() {
             <div className="bet-field">
               <label className="bet-field__label">Valor da aposta</label>
               <input
-                className={`bet-input${betInput && !valid.ok ? ' bet-input--error' : ''}`}
+                className={`bet-input${betInput && !valid.ok && !autoOn ? ' bet-input--error' : ''}${multActive ? ' bet-input--mult' : ''}`}
                 type="number" min={MIN_BET} step={MIN_BET}
-                value={betInput}
-                onChange={e => setBetInput(e.target.value)}
+                value={autoOn && currentBetDisplay !== null ? currentBetDisplay : betInput}
+                onChange={e => { if (!autoOn) setBetInput(e.target.value) }}
                 placeholder="0.0000"
                 disabled={autoOn}
               />
-              {betInput && !valid.ok
-                ? <p className="bet-hint bet-hint--error">{valid.msg}</p>
-                : <p className="bet-hint">Mínimo: {fmt(MIN_BET)}</p>
-              }
+              {autoOn && currentBetDisplay !== null ? (
+                <p className="bet-hint" style={{ color: multActive ? 'var(--red)' : '#9090a8' }}>
+                  {multActive
+                    ? `×${(currentBetDisplay / betBase).toFixed(2)} da aposta base (${fmt(betBase)})`
+                    : 'aposta base'
+                  }
+                </p>
+              ) : betInput && !valid.ok ? (
+                <p className="bet-hint bet-hint--error">{valid.msg}</p>
+              ) : (
+                <p className="bet-hint">Mínimo: {fmt(MIN_BET)}</p>
+              )}
 
               <div className="bet-quick-row">
                 <button className="bet-quick-btn" disabled={autoOn}
@@ -451,8 +540,7 @@ export default function Betting() {
                   disabled={autoOn}
                 />
                 <span className="bet-mult-desc">
-                  Multiply on loss<br />
-                  Reset when win.
+                  Multiply on loss<br />Reset when win.
                 </span>
               </div>
             </div>
@@ -492,10 +580,7 @@ export default function Betting() {
                 disabled={!valid.ok || running || autoOn}
                 onClick={handleManualBet}
               >
-                {running && !autoOn
-                  ? <><div className="bet-spinner" /></>
-                  : '⚡ Bet'
-                }
+                {running && !autoOn ? <><div className="bet-spinner" /></> : '⚡ Bet'}
               </button>
 
               {!autoOn ? (
@@ -503,9 +588,7 @@ export default function Betting() {
                   className="bet-auto-btn"
                   disabled={!valid.ok || running}
                   onClick={startAuto}
-                >
-                  ▶ Start Auto
-                </button>
+                >▶ Start Auto</button>
               ) : (
                 <button className="bet-auto-btn bet-auto-btn--stop" onClick={stopAuto}>
                   {running
@@ -516,15 +599,6 @@ export default function Betting() {
               )}
             </div>
           </div>
-          
-          {autoOn && currentBetDisplay !== null && (
-            <div className={`bet-current-bet${multActive ? ' bet-current-bet--active' : ''}`}>
-              <span className="bet-current-bet__label">Aposta atual</span>
-              <span className="bet-current-bet__value">
-                {fmt(currentBetDisplay)}
-              </span>
-            </div>
-          )}
 
           {/* ── carrossel ─────────────────────────────────── */}
           <div className="bet-carousel-wrap">
@@ -561,6 +635,29 @@ export default function Betting() {
               </div>
             </div>
           )}
+
+          {/* ── histórico de vencedores ───────────────────── */}
+          <div className="bet-winners">
+            <h3 className="bet-winners__title">🏆 Histórico de Jackpots</h3>
+            {jackpotWinners.length === 0 ? (
+              <p className="bet-winners__empty">
+                Nenhum vencedor ainda — seja o primeiro!
+              </p>
+            ) : (
+              <ul className="bet-winners__list">
+                {jackpotWinners.slice(0, 20).map((entry, i) => {
+                  const [name, amount] = String(entry).split(':')
+                  return (
+                    <li key={i} className="bet-winners__item">
+                      <span className="bet-winners__rank">#{i + 1}</span>
+                      <span className="bet-winners__name">{name}</span>
+                      <span className="bet-winners__amount">+{amount} LCKM</span>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </div>
 
         </main>
       </div>

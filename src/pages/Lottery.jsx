@@ -118,12 +118,12 @@ export default function Lottery() {
       if (data.error === 'no_open_lottery') { showToast('Nenhuma rodada aberta.', 'warn'); return }
 
       if (data.ok) {
-        showToast(`Ticket #${data.ticket_num} confirmado! Boa sorte 🎲`, 'success')
+        showToast(`Ticket #${data.ticket_num} Confirmed! Good luck 🎲`, 'success')
         await loadData()
         await refreshProfile()
       }
     } catch {
-      showToast('Erro ao participar. Tente novamente.', 'error')
+      showToast('Error. Try again.', 'error')
     } finally {
       setEntering(false)
     }

@@ -132,15 +132,17 @@
   transform: translateY(-1px);
 }
 
-/* ── Terms ──────────────────────────────────────────── */
-.login-terms {
-  margin: 1.25rem 0 0;
-  text-align: center;
-  font-size: .68rem;
-  color: var(--muted);
-  line-height: 1.5;
-}
-
 @media (max-width: 480px) {
   .login-card { padding: 2rem 1.5rem 1.75rem; }
 }
+/* ── MetaMask spinner ───────────────────────────────────── */
+.login-mm-spinner {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,.15);
+  border-top-color: #e27625;
+  border-radius: 50%;
+  animation: mmSpin .7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes mmSpin { to { transform: rotate(360deg); } }
