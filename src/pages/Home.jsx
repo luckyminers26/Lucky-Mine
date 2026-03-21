@@ -482,27 +482,104 @@ export default function Home() {
               </span>
             </div>
 
-            {totalStaked > 0 && (
-              <div className="staking-pool-info">
-                <span className="staking-pool-label">Total pool</span>
-                <span className="staking-pool-value">{formatBalance(totalStaked, 2)} LCKM</span>
+            <div className="staking-pool-info">
+              <span className="staking-pool-label">Total pool</span>
+              <span className="staking-pool-value">{formatBalance(totalStaked, 2)} LCKM</span>
+            </div>
+          </div>
+
+          {/* reserva acumulada — sempre visível */}
+          <div className="staking-reserve-row">
+            <div className="staking-reserve-item">
+              <span className="staking-reserve__label">Monthly reserve</span>
+              <span className="staking-reserve__value staking-reserve__value--accent">
+                {formatBalance(stakingReserve, 2)} LCKM
+              </span>
+            </div>
+          </div>
+
+          {/* stats do stake — sempre visível */}
+          <div className="staking-active">
+            <div className="staking-active__row">
+              <div className="staking-active__stat">
+                <span className="staking-active__label">Staked</span>
+                <span className="staking-active__value staking-active__value--gold">
+                  {formatBalance(myTotalStaked)} LCKM
+                </span>
               </div>
+              <div className="staking-active__stat">
+                <span className="staking-active__label">Pool share</span>
+                <span className="staking-active__value">{myStakePct.toFixed(2)}%</span>
+              </div>
+            </div>
+
+            {/* lista de depósitos — só se tiver algo */}
+            {hasAnyStake && (
+              <>
+                <div className="stakes-list">
+                  {stakes.map(st => {
+                    const until = new Date(new Date(st.staked_at).getTime() + lockupDays * 86400000)
+                    const free  = until <= new Date()
+                    return (
+                      <div key={st.id} className={`stake-item ${free ? 'stake-item--free' : 'stake-item--locked'}`}>
+                        <span className="stake-item__amount">{formatBalance(st.amount)} LCKM</span>
+                        {free
+                          ? <span className="stake-item__free">✓ Available</span>
+                          : <LockCountdown lockedUntil={until} />
+                        }
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <button
+                  className="staking-btn staking-btn--unstake"
+                  onClick={handleUnstake}
+                  disabled={stakingAction || unlockableAmount === 0}
+                >
+                  {stakingAction ? '…' : `🔓 Withdraw${unlockableAmount > 0 ? ` ${formatBalance(unlockableAmount)}` : ''}`}
+                </button>
+              </>
             )}
           </div>
 
-          {/* restante staking traduzido */}
+          {/* histórico de rewards — só se tiver */}
+          {stakingRewards.length > 0 && (
+            <div className="staking-rewards">
+              <p className="staking-rewards__title">Recent rewards</p>
+              <ul className="staking-rewards__list">
+                {stakingRewards.map(r => (
+                  <li key={r.id} className="staking-rewards__item">
+                    <span className="staking-rewards__amount">+{formatBalance(r.amount)} LCKM</span>
+                    <span className="staking-rewards__pct">{Number(r.stake_pct).toFixed(2)}%</span>
+                    <span className="staking-rewards__date">
+                      {new Date(r.rewarded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-          <input
-            type="number"
-            className="staking-input"
-            placeholder="Amount of LCKM"
-            value={stakeInput}
-            onChange={e => setStakeInput(e.target.value)}
-          />
-
-          <button className="staking-btn staking-btn--stake">
-            🔒 Stake
-          </button>
+          {/* formulário — sempre visível */}
+          <div className="staking-form">
+            <div className="staking-form__row">
+              <input
+                type="number"
+                className="staking-input"
+                placeholder="Amount to stake"
+                value={stakeInput}
+                onChange={e => setStakeInput(e.target.value)}
+              />
+              <button
+                className="staking-btn staking-btn--stake"
+                onClick={handleStake}
+                disabled={stakingAction || !stakeInput || parseFloat(stakeInput) <= 0}
+              >
+                {stakingAction ? '…' : '🔒 Stake'}
+              </button>
+            </div>
+          </div>
 
         </section>
       </main>

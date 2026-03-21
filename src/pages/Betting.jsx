@@ -331,7 +331,7 @@ export default function Betting() {
 
   return (
     <>
-      <Header />
+      
 
       {/* ── toast ─────────────────────────────────────────── */}
       {toast && (
@@ -381,6 +381,7 @@ export default function Betting() {
       )}
 
       <div className="bet-page">
+        <Header />
         <main className="bet-main">
 
           {/* ── modal how-to jackpot ──────────────────────── */}

@@ -36,7 +36,7 @@ export default function Header() {
               minimumFractionDigits: 4,
               maximumFractionDigits: 4
             })
-            : "••••••••••"
+            : "•••••••••"
           }
 
           <button

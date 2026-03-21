@@ -613,13 +613,6 @@
 .staking-btn--unstake:hover:not(:disabled) { background: rgba(255,255,255,0.1); color: var(--text); }
 .staking-btn--unstake:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.staking-form__balance {
-  font-size: 0.72rem;
-  color: var(--text);
-  margin: 0;
-}
-.staking-form__balance strong { color: var(--text); font-family: 'JetBrains Mono', monospace; }
-
 /* ── Staking reserve ────────────────────────────────── */
 .staking-reserve-row {
   display: flex;

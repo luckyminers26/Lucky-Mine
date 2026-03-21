@@ -48,7 +48,7 @@ export default function Premium() {
 
   // ── Wallet ──────────────────────────────────────────
   async function connectWallet() {
-    if (!window.ethereum) { setError('MetaMask não encontrada'); return }
+    if (!window.ethereum) { setError('MetaMask not found'); return }
     try {
       const provider = new ethers.BrowserProvider(window.ethereum)
       await provider.send('eth_requestAccounts', [])
@@ -60,7 +60,7 @@ export default function Premium() {
             params: [{ chainId: '0x38' }],
           })
         } catch { }
-        setError('Troque para a rede Sepolia')
+        setError('Switch to BSC network')
         return
       }
       const s = await provider.getSigner()
@@ -102,14 +102,14 @@ export default function Premium() {
   async function payWithUsdc(plan) {
     setError('')
     if (!signer) { await connectWallet(); return }
-    if (!config) { setError('Configuração não carregada, aguarde.'); return }
+    if (!config) { setError('Config not loaded yet, please wait.'); return }
 
     const price = plan === 'monthly'
       ? config.monthly_price_usdt
       : config.lifetime_price_usdt
 
     if (price == null) {
-      setError('Preço não encontrado no banco.')
+      setError('Price not found in database.')
       return
     }
 
@@ -119,7 +119,7 @@ export default function Premium() {
       const decimals = await usdt.decimals()
       const amount = ethers.parseUnits(String(price), decimals)
       const to = config.receive_wallet || RECEIVE_WALLET
-      if (!to) { setError('Wallet de recebimento não configurada no banco.'); return }
+      if (!to) { setError('Receiving wallet not configured in database.'); return }
 
       const tx = await usdt.transfer(to, amount)
       await tx.wait()
@@ -165,9 +165,9 @@ export default function Premium() {
         <main className="prem-main">
           <div className="prem-success">
             <div className="prem-success__icon">{success === 'lifetime' ? '💎' : '⚡'}</div>
-            <h2>{success === 'lifetime' ? 'Premium Vitalício ativado!' : 'Premium Mensal ativado!'}</h2>
-            <p>Bem-vindo ao clube. Aproveite seus benefícios.</p>
-            <button className="prem-success__btn" onClick={() => navigate('/')}>Ir para home</button>
+            <h2>{success === 'lifetime' ? 'Lifetime Premium activated!!' : 'Monthly Premium activated!'}</h2>
+            <p>Welcome to the club. Enjoy your benefits.</p>
+            <button className="prem-success__btn" onClick={() => navigate('/')}>to Home</button>
           </div>
         </main>
       </div>
@@ -181,8 +181,8 @@ export default function Premium() {
 
         <div className="prem-hero">
           <div className="prem-hero__orb" />
-          <h1 className="prem-hero__title">Minere mais.<br />Volte menos.</h1>
-          <p className="prem-hero__sub">Colete 24h de tokens com um clique.</p>
+          <h1 className="prem-hero__title">Mining more.<br />Come back less.</h1>
+          <p className="prem-hero__sub">Collect 24h of tokens with one click.</p>
           {isPremium && (
             <PremiumBadge
               type={profile.premium_type}
@@ -198,13 +198,13 @@ export default function Premium() {
           <div className="prem-already">
             <span className="prem-already__icon">{isLifetime ? '💎' : '⚡'}</span>
             <div>
-              <strong>{isLifetime ? 'Você já é Premium Vitalício' : 'Você já é Premium Mensal'}</strong>
+              <strong>{isLifetime ? 'You already have Lifetime Premium' : 'You already have Monthly Premium'}</strong>
               <p>
                 {isLifetime
-                  ? 'Acesso permanente ativo.'
+                  ? 'Permanent access active.'
                   : expiresStr
-                    ? `Válido até ${expiresStr}.`
-                    : 'Plano ativo.'}
+                    ? `Valid until ${expiresStr}.`
+                    : 'Plan active.'}
               </p>
             </div>
           </div>
@@ -215,15 +215,15 @@ export default function Premium() {
           {/* ── Mensal ── */}
           <div className="prem-plan">
             <div className="prem-plan__header">
-              <span className="prem-plan__tag">MENSAL</span>
-              <h3>Premium 30 dias</h3>
-              <p>Renove quando quiser. Não acumula.</p>
+              <span className="prem-plan__tag">Monthly</span>
+              <h3>Premium 30 days</h3>
+              <p>Renew anytime. Does not stack.</p>
             </div>
             <div className="prem-plan__prices">
 
               <div className="prem-price-row">
                 <div className="prem-price-row__info">
-                  <span className="prem-price-row__label">Pagar em LCKM</span>
+                  <span className="prem-price-row__label">Pay with LCKM</span>
                 </div>
                 <div className="prem-price-row__right">
                   <span className="prem-price-row__amount">
@@ -234,7 +234,7 @@ export default function Premium() {
                     disabled={!!loading || isPremium}
                   >
                     {loading === 'monthly-LCKM'
-                      ? <><span className="prem-spinner" /> Queimando…</>
+                      ? <><span className="prem-spinner" /> Burning...</>
                       : isPremium ? '✓ Ativo' : 'Ativar'}
                   </button>
                 </div>
@@ -244,9 +244,9 @@ export default function Premium() {
 
               <div className="prem-price-row">
                 <div className="prem-price-row__info">
-                  <span className="prem-price-row__label">Pagar em USDT</span>
-                  <span className="prem-price-row__note">Via wallet · USDT BSC</span>
-                  <span className="prem-price-row__note">Você precisa de ~0.001 BNB para pagar a taxa de rede.</span>
+                  <span className="prem-price-row__label">Pay with USDT</span>
+                  <span className="prem-price-row__note"> Wallet · USDT BSC</span>
+                  <span className="prem-price-row__note">You need ~0.001 BNB to pay network fees.</span>
 
                 </div>
                 <div className="prem-price-row__right">
@@ -258,10 +258,10 @@ export default function Premium() {
                     disabled={!!loading || isPremium}
                   >
                     {loading === 'monthly-usdt'
-                      ? <><span className="prem-spinner" /> Aguardando tx…</>
+                      ? <><span className="prem-spinner" /> Waiting for tx…</>
                       : isPremium
-                        ? '✓ Ativo'
-                        : wallet ? 'Pagar USDT' : '🦊 Conectar wallet'}
+                        ? '✓ Active'
+                        : wallet ? 'Pay with USDT' : '🦊 Connect wallet'}
                   </button>
                 </div>
               </div>
@@ -272,11 +272,11 @@ export default function Premium() {
           {/* ── Vitalício ── */}
           <div className="prem-plan prem-plan--lifetime">
             <div className="prem-plan__header">
-              <span className="prem-plan__tag prem-plan__tag--gold">VITALÍCIO</span>
-              <h3>Premium para sempre</h3>
+              <span className="prem-plan__tag prem-plan__tag--gold">LIFETIME</span>
+              <h3>Premium for ever</h3>
               <p>{slotsLeft !== null && (
                 <strong className={slotsLeft < 100 ? 'prem-slots--urgent' : ''}>
-                  {slotsLeft} vagas restantes até o preço dobrar.
+                  {slotsLeft} slots remaining before price doubles.
                 </strong>
               )}</p>
             </div>
@@ -284,7 +284,7 @@ export default function Premium() {
 
               <div className="prem-price-row">
                 <div className="prem-price-row__info">
-                  <span className="prem-price-row__label">Pagar em LCKM</span>
+                  <span className="prem-price-row__label">Pay with LCKM</span>
                 </div>
                 <div className="prem-price-row__right">
                   <span className="prem-price-row__amount">
@@ -295,8 +295,8 @@ export default function Premium() {
                     disabled={!!loading || isPremium || slotsLeft === 0}
                   >
                     {loading === 'lifetime-LCKM'
-                      ? <><span className="prem-spinner" /> Queimando…</>
-                      : isPremium ? '✓ Ativo' : slotsLeft === 0 ? 'Esgotado' : 'Ativar'}
+                      ? <><span className="prem-spinner" /> Burning...</>
+                      : isPremium ? '✓ Active' : slotsLeft === 0 ? 'Sold out' : 'Activate'}
                   </button>
                 </div>
               </div>
@@ -305,9 +305,9 @@ export default function Premium() {
 
               <div className="prem-price-row">
                 <div className="prem-price-row__info">
-                  <span className="prem-price-row__label">Pagar em USDT</span>
-                  <span className="prem-price-row__note">Via wallet · USDT BSC</span>
-                  <span className="prem-price-row__note">Você precisa de ~0.001 BNB para pagar a taxa de rede.</span>
+                  <span className="prem-price-row__label">Pay with USDT</span>
+                  <span className="prem-price-row__note"> Wallet · USDT BSC</span>
+                  <span className="prem-price-row__note">You need ~0.001 BNB to pay network fees.</span>
 
                 </div>
                 <div className="prem-price-row__right">
@@ -319,12 +319,12 @@ export default function Premium() {
                     disabled={!!loading || isPremium || slotsLeft === 0}
                   >
                     {loading === 'lifetime-usdt'
-                      ? <><span className="prem-spinner" /> Aguardando tx…</>
+                      ? <><span className="prem-spinner" /> Waiting for tx…</>
                       : isLifetime
-                        ? '✓ Ativo'
+                        ? '✓ Active'
                         : slotsLeft === 0
-                          ? 'Esgotado'
-                          : wallet ? 'Pagar USDT' : '🦊 Conectar wallet'}
+                          ? 'Sold out'
+                          : wallet ? 'Pay with USDT' : '🦊 Connect wallet'}
                   </button>
                 </div>
               </div>
@@ -336,11 +336,11 @@ export default function Premium() {
 
         {wallet ? (
           <p className="prem-wallet-info">
-            🦊 Conectado: <code>{wallet.slice(0, 6)}…{wallet.slice(-4)}</code>
+            🦊 Connected: <code>{wallet.slice(0, 6)}…{wallet.slice(-4)}</code>
           </p>
         ) : (
           <button className="prem-connect-btn" onClick={connectWallet}>
-            🦊 Conectar MetaMask para pagar com USDT
+            🦊 Connect MetaMask to pay with USDT
           </button>
         )}
 
