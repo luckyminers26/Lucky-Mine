@@ -345,14 +345,12 @@ export default function Betting() {
                       🏆 Prize: <strong style={{ color: 'var(--gold)' }}>{fmtBRInt(jackpotPrize)} LCKM</strong>
                     </p>
                     <p style={{ fontSize: '1rem', color: '#9090a8', margin: 0 }}>
-                      🔥 Burned: <strong style={{ color: 'var(--red)' }}>{fmtBRInt(jackpotPrize)} LCKM</strong>
+                      🔥 Burned: <strong style={{ color: 'var(--red)' }}>500 LCKM</strong>
                     </p>
                     <p style={{ fontSize: '1rem', color: '#9090a8', margin: 0 }}>
-                      💎 Staking: <strong style={{ color: 'var(--accent)' }}>{fmtBRInt(jackpotPrize)} LCKM</strong>
+                      💎 Staking: <strong style={{ color: 'var(--accent)' }}>500 LCKM</strong>
                     </p>
-                    <p style={{ fontSize: '1rem', color: '#9090a8', margin: 0 }}>
-                      🎲 Chance: ~{JACKPOT_CHANCE_DISPLAY}
-                    </p>
+
                   </div>
                 </div>
                 <button className="bet-jackpot-modal__btn" onClick={() => setJackpotHowTo(false)}>
@@ -365,7 +363,7 @@ export default function Betting() {
           {/* ── hero ──────────────────────────────────────── */}
           <div className="bet-hero">
             <div className="bet-hero__orb" />
-            <h1 className="bet-hero__title">🎲 Apostas</h1>
+            <h1 className="bet-hero__title">🎲 Bets</h1>
             <div className="bet-hero__jackpot">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span className="bet-hero__jackpot-label">🏆 Jackpot Pool</span>
