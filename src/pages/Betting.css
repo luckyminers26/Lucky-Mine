@@ -592,7 +592,6 @@
 }
 
 .bet-input:disabled {
-  opacity: 0.45;
   cursor: not-allowed;
 }
 
@@ -603,20 +602,6 @@
 .bet-input::-webkit-inner-spin-button,
 .bet-input::-webkit-outer-spin-button {
   -webkit-appearance: none;
-}
-
-.bet-input[type=number] {
-  -moz-appearance: textfield;
-}
-
-.bet-hint {
-  font-size: 0.72rem;
-  color: #9090a8;
-  margin: 0;
-}
-
-.bet-hint--error {
-  color: var(--red);
 }
 
 .bet-quick-row {

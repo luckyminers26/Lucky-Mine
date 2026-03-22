@@ -63,7 +63,7 @@
   z-index: 1;
   width: 100%;
   max-width: 380px;
-  margin: 1.5rem;
+  margin: 0 1.5rem 5rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -82,7 +82,7 @@
 /* ── Header ─────────────────────────────────────────── */
 .login-card__header--center {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 .login-logo-img  { margin-bottom: .75rem; }
 .login-title     { font-size:1.5rem; font-weight:800; color:var(--text); margin:0 0 .3rem; }

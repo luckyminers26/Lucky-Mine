@@ -7,10 +7,10 @@
 .stats-main {
   max-width: 680px;
   margin: 0 auto;
-  padding: 2.5rem 1.25rem 5rem;
+  padding: 2rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
   animation: fadeUp .45s cubic-bezier(.22,1,.36,1) both;
 }
 
@@ -23,7 +23,7 @@
 .stats-hero {
   position: relative;
   text-align: center;
-  padding: 2.5rem 1rem 2rem;
+  padding: 2rem 1rem 2rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 20px;
@@ -59,7 +59,7 @@
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: .9rem;
+  gap: .75rem;
 }
 
 @media (max-width:520px) { .stats-grid { grid-template-columns: 1fr 1fr; } }

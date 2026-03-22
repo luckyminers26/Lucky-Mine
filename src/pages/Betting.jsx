@@ -9,38 +9,27 @@ import './Betting.css'
 const MIN_BET = 0.0001
 const CAROUSEL_MAX = 40
 const AUTO_DELAY = 900
-// Chance jackpot: (10/100)^6 ≈ 1 em 1.000.000 (7 consecutivos)
 const JACKPOT_CHANCE_DISPLAY = '1 em 1.000.000'
 
-/* payout = 0.99 / chance  (house edge 1%) */
 function calcPayout(chancePct) {
   return 0.99 / (chancePct / 100)
 }
 
 /* ─── helpers ─────────────────────────────────────────────── */
-const fmt = n => Number(n).toFixed(4)
+const fmt    = n => Number(n).toFixed(4)
 const round4 = n => Math.round(n * 10000) / 10000
-const clamp = (v, mn, mx) => Math.max(mn, Math.min(mx, v))
+const clamp  = (v, mn, mx) => Math.max(mn, Math.min(mx, v))
 
-// Formato pt-BR: separador de milhar = ponto, decimal = vírgula
-// fmtBR(98000.5465)  → "98.000,5465"
-// fmtBR(1000)        → "1.000"
-// fmtBR(0.0001)      → "0,0001"
 const fmtBR = n => {
   const num = Number(n)
   if (!isFinite(num)) return '——'
-  // Remove zeros decimais desnecessários mas mantém até 4 casas
   const str = num.toFixed(4).replace(/\.?0+$/, '')
   const [intPart, decPart] = str.split('.')
   const intFormatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
   return decPart ? `${intFormatted},${decPart}` : intFormatted
 }
 
-// Sem casas decimais: fmtBRInt(1000) → "1.000"
-const fmtBRInt = n => {
-  const num = Math.round(Number(n))
-  return num.toLocaleString('pt-BR')
-}
+const fmtBRInt = n => Math.round(Number(n)).toLocaleString('pt-BR')
 
 function parseSafe(str) {
   const n = parseFloat(str)
@@ -54,50 +43,45 @@ function validateBet(raw, bal) {
   return { ok: true, amt }
 }
 
-
 export default function Betting() {
   const { profile, refreshProfile } = useAuth()
   const navigate = useNavigate()
 
-  const [balance, setBalance] = useState(null)
-  const [jackpotInfo, setJackpotInfo] = useState(null) // {pool, prize, streak_req, winners}
-  const [betInput, setBetInput] = useState('')
-  const [chancePct, setChancePct] = useState(50)
-  const [multInput, setMultInput] = useState('2')
-  const [autoOn, setAutoOn] = useState(false)
-  const [running, setRunning] = useState(false)
-  const [toast, setToast] = useState(null)
-  const [stopped, setStopped] = useState(null)
-  const [stopGain, setStopGain] = useState('')
-  const [stopLoss, setStopLoss] = useState('')
-  const [history, setHistory] = useState([])
-  const [stats, setStats] = useState({ wins: 0, losses: 0, net: 0, streak: 0 })
-  const [jackpotModal, setJackpotModal] = useState(null)
-  const [jackpotHowTo, setJackpotHowTo] = useState(false)
+  const [balance, setBalance]               = useState(null)
+  const [jackpotInfo, setJackpotInfo]       = useState(null)
+  const [betInput, setBetInput]             = useState('')
+  const [chancePct, setChancePct]           = useState(50)
+  const [multInput, setMultInput]           = useState('2')
+  const [autoOn, setAutoOn]                 = useState(false)
+  const [running, setRunning]               = useState(false)
+  const [stopped, setStopped]               = useState(null)
+  const [stopGain, setStopGain]             = useState('')
+  const [stopLoss, setStopLoss]             = useState('')
+  const [history, setHistory]               = useState([])
+  const [stats, setStats]                   = useState({ wins: 0, losses: 0, net: 0, streak: 0 })
+  const [jackpotModal, setJackpotModal]     = useState(null)
+  const [jackpotHowTo, setJackpotHowTo]     = useState(false)
   const [currentBetDisplay, setCurrentBetDisplay] = useState(null)
 
-  /* ── refs ── */
-  const autoRef = useRef(false)
-  const balanceRef = useRef(null)
+  const autoRef       = useRef(false)
+  const balanceRef    = useRef(null)
   const initialBalRef = useRef(null)
   const currentBetRef = useRef(0)
-  const baseBetRef = useRef(0)
-  const mountedRef = useRef(true)
-  const toastTimer = useRef(null)
-  const histIdRef = useRef(0)
-  const rollHistRef = useRef([])
+  const baseBetRef    = useRef(0)
+  const mountedRef    = useRef(true)
+  const histIdRef     = useRef(0)
+  const rollHistRef   = useRef([])
 
   /* sync saldo */
   useEffect(() => {
     if (profile?.balance != null && balance === null) {
       const b = Number(profile.balance)
       setBalance(b)
-      balanceRef.current = b
+      balanceRef.current    = b
       initialBalRef.current = b
     }
   }, [profile])
 
-  /* busca jackpot info ao montar */
   useEffect(() => {
     supabase.rpc('get_jackpot_info').then(({ data }) => {
       if (data) setJackpotInfo(data)
@@ -109,18 +93,9 @@ export default function Betting() {
     mountedRef.current = true
     return () => {
       mountedRef.current = false
-      autoRef.current = false
-      clearTimeout(toastTimer.current)
+      autoRef.current    = false
     }
   }, [])
-
-  function showToast(type, msg) {
-    clearTimeout(toastTimer.current)
-    setToast({ type, msg, key: Date.now() })
-    toastTimer.current = setTimeout(() => {
-      if (mountedRef.current) setToast(null)
-    }, 1800)
-  }
 
   /* ── uma aposta ──────────────────────────────────────────── */
   const placeBet = useCallback(async (amount, baseAmount, chance) => {
@@ -138,45 +113,29 @@ export default function Betting() {
 
     if (error || !data || data.error) {
       if (data?.error === 'rate_limited') return null
-
       const msg =
-        data?.error === 'insufficient' ? 'Insufficient balance.' :
-          data?.error === 'below_minimum' ? 'Bet too low.' :
-            data?.error === 'invalid_chance' ? 'Invalid.' :
-              data?.error === 'not_found' ? 'Profile fot found.' :
-                `Erro: ${data?.error ?? error?.message ?? 'unknown'}`
+        data?.error === 'insufficient'   ? 'Insufficient balance.' :
+        data?.error === 'below_minimum'  ? 'Bet too low.'          :
+        data?.error === 'invalid_chance' ? 'Invalid.'              :
+        data?.error === 'not_found'      ? 'Profile not found.'    :
+        `Error: ${data?.error ?? error?.message ?? 'unknown'}`
       autoRef.current = false
       setAutoOn(false)
       setRunning(false)
       setStopped(msg)
-      showToast('warn', msg)
       return null
     }
 
-    const roll = data.roll
-    const won = data.won
-    const newBal = Number(data.balance)
-    const delta = Number(data.delta)
+    const roll       = data.roll
+    const won        = data.won
+    const newBal     = Number(data.balance)
+    const delta      = Number(data.delta)
     const jackpotHit = data.jackpot === true
     const jackpotAmt = Number(data.jackpot_amt ?? 0)
 
     rollHistRef.current = (data.roll_hist ?? [])
-    balanceRef.current = newBal
+    balanceRef.current  = newBal
     setBalance(newBal)
-
-    /* atualiza pool local: perde → sobe, ganha → desce */
-    setJackpotInfo(prev => {
-      if (!prev) return prev
-      if (jackpotHit) {
-        /* re-busca do banco para atualizar pool e winners */
-        supabase.rpc('get_jackpot_info').then(({ data: d }) => {
-          if (d && mountedRef.current) setJackpotInfo(d)
-        })
-        return prev
-      }
-      const poolDelta = won ? -round4(amt * (calcPayout(chance) - 1)) : amt
-      return { ...prev, pool: round4((prev.pool ?? 0) + poolDelta) }
-    })
 
     /* carrossel */
     const entry = { id: ++histIdRef.current, won, delta, roll, jackpot: jackpotHit }
@@ -188,9 +147,9 @@ export default function Betting() {
         ? (prev.streak >= 0 ? prev.streak + 1 : 1)
         : (prev.streak <= 0 ? prev.streak - 1 : -1)
       return {
-        wins: prev.wins + (won ? 1 : 0),
+        wins:   prev.wins   + (won ? 1 : 0),
         losses: prev.losses + (won ? 0 : 1),
-        net: round4(prev.net + delta + jackpotAmt),
+        net:    round4(prev.net + delta + jackpotAmt),
         streak,
       }
     })
@@ -201,15 +160,14 @@ export default function Betting() {
       setAutoOn(false)
       setCurrentBetDisplay(null)
       setJackpotModal({
-        nums: rollHistRef.current.slice(0, jackpotInfo?.streak_req ?? 7),
-        amt: jackpotAmt,
-        burnAmt: Number(data.burn_amt ?? 0),
+        nums:       rollHistRef.current.slice(0, jackpotInfo?.streak_req ?? 7),
+        amt:        jackpotAmt,
+        burnAmt:    Number(data.burn_amt    ?? 0),
         stakingAmt: Number(data.staking_amt ?? 0),
       })
       return { won, newBal, delta, jackpotHit: true, jackpotAmt }
     }
 
-    showToast(won ? 'win' : 'loss', won ? `+${fmt(delta)}` : fmt(delta))
     return { won, newBal, delta, jackpotHit: false, jackpotAmt: 0 }
   }, [jackpotInfo])
 
@@ -217,8 +175,8 @@ export default function Betting() {
   async function handleManualBet() {
     if (running || autoOn) return
     const bal = balanceRef.current ?? 0
-    const v = validateBet(betInput, bal)
-    if (!v.ok) { showToast('warn', v.msg); return }
+    const v   = validateBet(betInput, bal)
+    if (!v.ok) { setStopped(v.msg); return }
     setStopped(null)
     baseBetRef.current = v.amt
     setRunning(true)
@@ -230,26 +188,26 @@ export default function Betting() {
   async function startAuto() {
     if (autoRef.current) return
     const bal = balanceRef.current ?? 0
-    const v = validateBet(betInput, bal)
-    if (!v.ok) { showToast('warn', v.msg); return }
+    const v   = validateBet(betInput, bal)
+    if (!v.ok) { setStopped(v.msg); return }
 
     const mult = clamp(parseSafe(multInput) ?? 1, 1, 1000)
 
     initialBalRef.current = bal
     currentBetRef.current = v.amt
-    baseBetRef.current = v.amt
-    autoRef.current = true
+    baseBetRef.current    = v.amt
+    autoRef.current       = true
     setAutoOn(true)
     setCurrentBetDisplay(v.amt)
     setStopped(null)
 
     const gainLimit = parseSafe(stopGain)
     const lossLimit = parseSafe(stopLoss)
-    const chance = chancePct
+    const chance    = chancePct
 
     while (autoRef.current && mountedRef.current) {
       const curBal = balanceRef.current ?? 0
-      const bet = round4(clamp(currentBetRef.current, MIN_BET, curBal))
+      const bet    = round4(clamp(currentBetRef.current, MIN_BET, curBal))
 
       if (curBal < MIN_BET) {
         autoRef.current = false; setStopped('Insufficient balance.'); break
@@ -274,10 +232,10 @@ export default function Betting() {
 
       const gained = round4(res.newBal - initialBalRef.current)
       if (gainLimit !== null && gained >= gainLimit) {
-        autoRef.current = false; setStopped(`Stop gain atingido (+${fmt(gainLimit)}).`); break
+        autoRef.current = false; setStopped(`Stop gain! +${fmt(gainLimit)}.`); break
       }
       if (lossLimit !== null && -gained >= lossLimit) {
-        autoRef.current = false; setStopped(`Stop loss atingido (−${fmt(lossLimit)}).`); break
+        autoRef.current = false; setStopped(`Stop loss! −${fmt(lossLimit)}.`); break
       }
 
       await new Promise(r => setTimeout(r, AUTO_DELAY))
@@ -298,24 +256,22 @@ export default function Betting() {
   }
 
   /* ── display ─────────────────────────────────────────────── */
-  const bal = balance ?? Number(profile?.balance ?? 0)
-  const betVal = parseSafe(betInput) ?? 0
-  const betBase = parseSafe(betInput) ?? 0
-  const valid = betInput !== '' ? validateBet(betInput, bal) : { ok: false, msg: '' }
-  const payout = calcPayout(chancePct)
-  const netCls = stats.net >= 0 ? 'bet-stat__value--green' : 'bet-stat__value--red'
-  const netCard = stats.net >= 0 ? 'bet-stat--net-pos' : 'bet-stat--net-neg'
+  const bal      = balance ?? Number(profile?.balance ?? 0)
+  const betVal   = parseSafe(betInput) ?? 0
+  const betBase  = parseSafe(betInput) ?? 0
+  const valid    = betInput !== '' ? validateBet(betInput, bal) : { ok: false, msg: '' }
+  const payout   = calcPayout(chancePct)
+  const netCls   = stats.net >= 0 ? 'bet-stat__value--green' : 'bet-stat__value--red'
+  const netCard  = stats.net >= 0 ? 'bet-stat--net-pos' : 'bet-stat--net-neg'
   const multActive = currentBetDisplay !== null && betBase > 0
     && (currentBetDisplay - betBase) > 0.00005
 
-  const jackpotPool = jackpotInfo?.pool ?? null
-  const jackpotPrize = jackpotInfo?.prize ?? 1000
-  const jackpotStreak = jackpotInfo?.streak_req ?? 7
-  const jackpotWinners = jackpotInfo?.winners ?? []
+  const jackpotPool    = jackpotInfo?.pool       ?? null
+  const jackpotPrize   = jackpotInfo?.prize      ?? 1000
+  const jackpotStreak  = jackpotInfo?.streak_req ?? 7
+  const jackpotWinners = jackpotInfo?.winners    ?? []
 
-  function setQuick(fn) {
-    setBetInput(fmt(round4(Math.max(fn(bal), MIN_BET))))
-  }
+  function setQuick(fn) { setBetInput(fmt(round4(Math.max(fn(bal), MIN_BET)))) }
   function doDouble() {
     const v = parseSafe(betInput); if (!v) return
     setBetInput(fmt(round4(Math.min(v * 2, bal))))
@@ -329,16 +285,6 @@ export default function Betting() {
 
   return (
     <>
-      
-
-      {/* ── toast ─────────────────────────────────────────── */}
-      {toast && (
-        <div key={toast.key} className={`bet-toast bet-toast--${toast.type}`}>
-          {toast.type === 'win' ? '✦ ' : toast.type === 'loss' ? '✕ ' : '⚠ '}
-          {toast.msg}
-        </div>
-      )}
-
       {/* ── modal jackpot ─────────────────────────────────── */}
       {jackpotModal && (
         <div className="bet-jackpot-overlay">
@@ -382,7 +328,7 @@ export default function Betting() {
         <Header />
         <main className="bet-main">
 
-          {/* ── modal how-to jackpot ──────────────────────── */}
+          {/* ── modal how-to ───────────────────────────────── */}
           {jackpotHowTo && (
             <div className="bet-jackpot-overlay" onClick={() => setJackpotHowTo(false)}>
               <div className="bet-jackpot-modal" onClick={e => e.stopPropagation()}>
@@ -390,20 +336,22 @@ export default function Betting() {
                   How to win the Jackpot?
                 </h2>
                 <div style={{ textAlign: 'left', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-
                   <p style={{ fontSize: '0.85rem', color: 'var(--text)', margin: 0 }}>
-                     If the last <strong>{jackpotStreak} drawn numbers</strong> all belong
-                    to the <strong>same decade</strong> like 1x (11-12-13-14-15-16-13), you win the jackpot.
+                    If the last <strong>{jackpotStreak} drawn numbers</strong> all belong
+                    to the <strong>same decade</strong> (e.g. 1x: 11-12-13-14-15-16-13), you win the jackpot.
                   </p>
-                  <div style={{ display: 'flex',flexDirection: 'column', gap: 4 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <p style={{ fontSize: '1rem', color: '#9090a8', margin: 0 }}>
                       🏆 Prize: <strong style={{ color: 'var(--gold)' }}>{fmtBRInt(jackpotPrize)} LCKM</strong>
                     </p>
                     <p style={{ fontSize: '1rem', color: '#9090a8', margin: 0 }}>
-                      🔥 Burned: <strong style={{ color: 'var(--red)' }}>500</strong>
+                      🔥 Burned: <strong style={{ color: 'var(--red)' }}>{fmtBRInt(jackpotPrize)} LCKM</strong>
                     </p>
                     <p style={{ fontSize: '1rem', color: '#9090a8', margin: 0 }}>
-                      💎 Staking: <strong style={{ color: 'var(--accent)' }}>500</strong>
+                      💎 Staking: <strong style={{ color: 'var(--accent)' }}>{fmtBRInt(jackpotPrize)} LCKM</strong>
+                    </p>
+                    <p style={{ fontSize: '1rem', color: '#9090a8', margin: 0 }}>
+                      🎲 Chance: ~{JACKPOT_CHANCE_DISPLAY}
                     </p>
                   </div>
                 </div>
@@ -414,7 +362,7 @@ export default function Betting() {
             </div>
           )}
 
-          {/* ── hero — jackpot pool ────────────────────────── */}
+          {/* ── hero ──────────────────────────────────────── */}
           <div className="bet-hero">
             <div className="bet-hero__orb" />
             <h1 className="bet-hero__title">🎲 Apostas</h1>
@@ -424,7 +372,7 @@ export default function Betting() {
                 <button
                   className="bet-howto-btn"
                   onClick={() => setJackpotHowTo(true)}
-                  title="Como funciona o jackpot?"
+                  title="How does the jackpot work?"
                 >?</button>
               </div>
               <span className="bet-hero__jackpot-value">
@@ -441,7 +389,7 @@ export default function Betting() {
               <div className="bet-chance-header">
                 <span className="bet-chance-pct">{chancePct}%</span>
                 <span className="bet-chance-roll">
-                  vitória se rolar ≥ {100 - chancePct} (de 0–99)
+                  win if roll ≥ {100 - chancePct} (0–99)
                 </span>
               </div>
               <input
@@ -464,8 +412,8 @@ export default function Betting() {
 
             <div className="bet-prob-bar">
               <div className="bet-prob-fill" style={{ width: `${chancePct}%` }} />
-              <span className="bet-prob-label">GANHO {chancePct}%</span>
-              <span className="bet-prob-label bet-prob-label--loss">PERDA {100 - chancePct}%</span>
+              <span className="bet-prob-label">WIN {chancePct}%</span>
+              <span className="bet-prob-label bet-prob-label--loss">LOSS {100 - chancePct}%</span>
             </div>
 
             <div className="bet-payout-grid">
@@ -479,13 +427,13 @@ export default function Betting() {
                 <span className="bet-payout-card__val bet-payout-card__val--green">
                   +{betVal > 0 ? fmt(betVal * (payout - 1)) : '0.0000'}
                 </span>
-                <span className="bet-payout-card__label">Se ganhar</span>
+                <span className="bet-payout-card__label">If win</span>
               </div>
               <div className="bet-payout-card bet-payout-card--loss">
                 <span className="bet-payout-card__val bet-payout-card__val--red">
                   −{betVal > 0 ? fmt(betVal) : '0.0000'}
                 </span>
-                <span className="bet-payout-card__label">Se perder</span>
+                <span className="bet-payout-card__label">If loss</span>
               </div>
             </div>
           </div>
@@ -494,7 +442,7 @@ export default function Betting() {
           <div className="bet-card">
 
             <div className="bet-field">
-              <label className="bet-field__label">Valor da aposta</label>
+              <label className="bet-field__label">Bet value</label>
               <input
                 className={`bet-input${betInput && !valid.ok && !autoOn ? ' bet-input--error' : ''}${multActive ? ' bet-input--mult' : ''}`}
                 type="number" min={MIN_BET} step={MIN_BET}
@@ -503,18 +451,7 @@ export default function Betting() {
                 placeholder="0.0000"
                 disabled={autoOn}
               />
-              {autoOn && currentBetDisplay !== null ? (
-                <p className="bet-hint" style={{ color: multActive ? 'var(--red)' : '#9090a8' }}>
-                  {multActive
-                    ? `×${(currentBetDisplay / betBase).toFixed(2)} da aposta base (${fmt(betBase)})`
-                    : 'aposta base'
-                  }
-                </p>
-              ) : betInput && !valid.ok ? (
-                <p className="bet-hint bet-hint--error">{valid.msg}</p>
-              ) : (
-                <p className="bet-hint">Mínimo: {fmt(MIN_BET)}</p>
-              )}
+
 
               <div className="bet-quick-row">
                 <button className="bet-quick-btn" disabled={autoOn}
@@ -548,7 +485,7 @@ export default function Betting() {
                   <input
                     className="bet-input"
                     type="number" min={MIN_BET} step={MIN_BET}
-                    placeholder="sem limite"
+                    placeholder="no limit"
                     value={stopGain}
                     onChange={e => setStopGain(e.target.value)}
                     disabled={autoOn}
@@ -559,7 +496,7 @@ export default function Betting() {
                   <input
                     className="bet-input"
                     type="number" min={MIN_BET} step={MIN_BET}
-                    placeholder="sem limite"
+                    placeholder="no limit"
                     value={stopLoss}
                     onChange={e => setStopLoss(e.target.value)}
                     disabled={autoOn}
@@ -604,7 +541,7 @@ export default function Betting() {
                 <div
                   key={h.id}
                   className={`bet-dot ${h.jackpot ? 'bet-dot--jackpot' : h.won ? 'bet-dot--win' : 'bet-dot--loss'}`}
-                  title={`Número: ${h.roll} | ${h.won ? '+' : ''}${fmt(h.delta)}${h.jackpot ? ' 🏆 JACKPOT' : ''}`}
+                  title={`Roll: ${h.roll} | ${h.won ? '+' : ''}${fmt(h.delta)}${h.jackpot ? ' 🏆 JACKPOT' : ''}`}
                 >
                   {h.jackpot ? '★' : h.roll}
                 </div>
@@ -634,11 +571,9 @@ export default function Betting() {
 
           {/* ── histórico de vencedores ───────────────────── */}
           <div className="bet-winners">
-            <h3 className="bet-winners__title">🏆 jackpot history</h3>
+            <h3 className="bet-winners__title">🏆 Jackpot history</h3>
             {jackpotWinners.length === 0 ? (
-              <p className="bet-winners__empty">
-                Be the first!
-              </p>
+              <p className="bet-winners__empty">Be the first!</p>
             ) : (
               <ul className="bet-winners__list">
                 {jackpotWinners.slice(0, 20).map((entry, i) => {

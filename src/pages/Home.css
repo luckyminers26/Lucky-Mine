@@ -581,6 +581,11 @@
 }
 .staking-input::placeholder { color: var(--text); }
 
+.staking-input::-webkit-inner-spin-button,
+.staking-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
 .staking-btn {
   padding: 0.65rem 1.1rem;
   border: none;

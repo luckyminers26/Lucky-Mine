@@ -37,7 +37,7 @@ export default function Login() {
     setError('')
 
     if (!window.ethereum?.isMetaMask) {
-      setError('MetaMask não encontrado. Instale a extensão em metamask.io')
+      setError('MetaMask not found. Install in metamask.io')
       return
     }
 
@@ -104,7 +104,7 @@ export default function Login() {
         <div className="login-card__header login-card__header--center">
           <img src={logo} alt="Lucky Mine" width="56" className="login-logo-img" />
           <h1 className="login-title">Lucky Mine</h1>
-          <p className="login-subtitle">Entre para começar a minerar</p>
+          <p className="login-subtitle">Earn and play lckm</p>
         </div>
 
         {error && (
