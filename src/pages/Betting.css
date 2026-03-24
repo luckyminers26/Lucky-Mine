@@ -32,7 +32,7 @@
 .bet-hero {
   position: relative;
   text-align: center;
-  padding: 2.5rem 1rem 2rem;
+  padding: 2rem 1rem ;
   background: linear-gradient(145deg, rgba(240, 180, 41, 0.07), rgba(91, 94, 244, 0.06));
   border: 1px solid rgba(240, 180, 41, 0.2);
   border-radius: 20px;
@@ -937,7 +937,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s;
   flex-shrink: 0;
   line-height: 1;
 }
@@ -953,4 +952,77 @@
   justify-content: center;
   font-size: 0.75rem;
   color: #9090a8;
+}
+/* ── wager ranking ────────────────────────────────────────── */
+.bet-wager-ranking {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bet-wager-ranking__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.bet-wager-ranking__title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9090a8;
+  margin: 0;
+}
+
+.bet-wager-ranking__timer {
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  background: rgba(91,94,244,0.1);
+  border: 1px solid rgba(91,94,244,0.2);
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+
+.bet-wager-ranking__sub {
+  font-size: 0.75rem;
+  color: #9090a8;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* reutiliza bet-winners__list mas adiciona colunas extras */
+.bet-wager-ranking .bet-winners__item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.bet-winners__item--me {
+  background: rgba(91,94,244,0.06);
+  border-color: rgba(91,94,244,0.25);
+}
+
+.bet-winners__wager {
+  flex: 1;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: #9090a8;
+  text-align: right;
+}
+
+.bet-winners__pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gold);
+  min-width: 36px;
+  text-align: right;
 }

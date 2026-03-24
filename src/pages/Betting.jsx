@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient2'
 import { useAuth } from '../contexts/AuthContext'
+import { useJackpotCache } from '../hooks/useJackpotCache'
 import Header from '../components/Header'
 import './Betting.css'
 
@@ -47,8 +48,9 @@ export default function Betting() {
   const { profile, refreshProfile } = useAuth()
   const navigate = useNavigate()
 
+  const { jackpotInfo, wagerRanking, invalidate: invalidateJackpot } = useJackpotCache()
+
   const [balance, setBalance]               = useState(null)
-  const [jackpotInfo, setJackpotInfo]       = useState(null)
   const [betInput, setBetInput]             = useState('')
   const [chancePct, setChancePct]           = useState(50)
   const [multInput, setMultInput]           = useState('2')
@@ -81,12 +83,6 @@ export default function Betting() {
       initialBalRef.current = b
     }
   }, [profile])
-
-  useEffect(() => {
-    supabase.rpc('get_jackpot_info').then(({ data }) => {
-      if (data) setJackpotInfo(data)
-    })
-  }, [])
 
   /* para ao desmontar */
   useEffect(() => {
@@ -159,6 +155,7 @@ export default function Betting() {
       autoRef.current = false
       setAutoOn(false)
       setCurrentBetDisplay(null)
+      invalidateJackpot()  // força re-fetch na próxima visita
       setJackpotModal({
         nums:       rollHistRef.current.slice(0, jackpotInfo?.streak_req ?? 7),
         amt:        jackpotAmt,
@@ -465,7 +462,7 @@ export default function Betting() {
               <div className="bet-mult-row">
                 <input
                   className="bet-input"
-                  type="number" min="1" max="1000" step="0.1"
+                  type="number" min="1" max="1000"
                   value={multInput}
                   onChange={e => setMultInput(e.target.value)}
                   disabled={autoOn}
@@ -587,6 +584,71 @@ export default function Betting() {
               </ul>
             )}
           </div>
+
+          {/* ── wager ranking semanal ────────────────────── */}
+          {(() => {
+            const season   = wagerRanking?.season
+            const ranking  = wagerRanking?.ranking ?? []
+            const myUserId = profile?.id
+            const endsAt   = season?.ends_at ? new Date(season.ends_at) : null
+            const daysLeft = endsAt
+              ? Math.max(0, Math.ceil((endsAt - Date.now()) / 86400000))
+              : null
+
+            // prize_pool = pool_start × wager_prize_pct% (fixo e previsível)
+            const poolStart    = season?.pool_start      ?? 0
+            const prizePct     = wagerRanking?.prize_pct ?? 10
+            const estPrizePool = Math.round(poolStart * prizePct / 100)
+
+            const pcts = [23, 17, 13, 11, 7.5, 7.5, 6, 6, 4.5, 4.5]
+
+            return (
+              <div className="bet-wager-ranking">
+                <div className="bet-wager-ranking__header">
+                  <h3 className="bet-wager-ranking__title">🎖 Wager Ranking</h3>
+                  {daysLeft !== null && (
+                    <span className="bet-wager-ranking__timer">
+                      {daysLeft === 0 ? 'Ends today' : `${daysLeft}d left`}
+                    </span>
+                  )}
+                </div>
+
+                <p className="bet-wager-ranking__sub">
+                  Bet more, climb higher. Top 10 shares:
+                  {estPrizePool > 0 && (
+                    <> <strong style={{color:'var(--gold)'}}>{fmtBR(estPrizePool)} LCKM</strong></>
+                  )}
+                </p>
+
+                {ranking.length === 0 ? (
+                  <p className="bet-winners__empty">No bets yet this season.</p>
+                ) : (
+                  <ul className="bet-winners__list">
+                    {ranking.map((r, i) => {
+                      const isMe      = r.user_id === myUserId
+                      const estPrize  = round4(estPrizePool * pcts[i] / 100)
+                      return (
+                        <li key={i} className={`bet-winners__item${isMe ? ' bet-winners__item--me' : ''}`}>
+                          <span className="bet-winners__rank">#{i + 1}</span>
+                          <span className="bet-winners__name">
+                            {r.display_name ?? '—'}
+                            {isMe && <span style={{color:'var(--accent)', marginLeft:6, fontSize:'0.7rem'}}>you</span>}
+                          </span>
+                          <span className="bet-winners__wager">{fmtBR(r.wager)}</span>
+                          <span className="bet-winners__pct">
+                            {estPrizePool > 0
+                              ? `~${fmtBR(estPrize)}`
+                              : `${pcts[i]}%`
+                            }
+                          </span>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+              </div>
+            )
+          })()}
 
         </main>
       </div>

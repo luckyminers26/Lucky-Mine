@@ -5,7 +5,7 @@ import Header from '../components/Header'
 import './Referral.css'
 
 const MAX_REFERRALS = 10
-const REWARD_LCKM = 1
+const REWARD_LCKM = 3
 const LOTTERY_REQ = 10
 
 export default function Referral() {
