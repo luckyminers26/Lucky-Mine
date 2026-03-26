@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient2'
 import { useAuth } from '../contexts/AuthContext'
 import { useJackpotCache } from '../hooks/useJackpotCache'
+import {Medal} from "lucide-react"
 import Header from '../components/Header'
 import './Betting.css'
 
@@ -10,7 +11,6 @@ import './Betting.css'
 const MIN_BET = 0.0001
 const CAROUSEL_MAX = 40
 const AUTO_DELAY = 900
-const JACKPOT_CHANCE_DISPLAY = '1 em 1.000.000'
 
 function calcPayout(chancePct) {
   return 0.99 / (chancePct / 100)
@@ -605,7 +605,7 @@ export default function Betting() {
             return (
               <div className="bet-wager-ranking">
                 <div className="bet-wager-ranking__header">
-                  <h3 className="bet-wager-ranking__title">🎖 Wager Ranking</h3>
+                  <h3 className="bet-wager-ranking__title"><Medal color='gold'/> Wager Ranking</h3>
                   {daysLeft !== null && (
                     <span className="bet-wager-ranking__timer">
                       {daysLeft === 0 ? 'Ends today' : `${daysLeft}d left`}

@@ -165,7 +165,7 @@
 .header__logo-balance {
   display: flex;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.88rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #e8e8f0;
   letter-spacing: 0.01em;

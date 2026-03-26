@@ -86,7 +86,7 @@
 }
 .login-logo-img  { margin-bottom: .75rem; }
 .login-title     { font-size:1.5rem; font-weight:800; color:var(--text); margin:0 0 .3rem; }
-.login-subtitle  { font-size:.82rem; color:var(--muted); margin:0; }
+.login-subtitle  { font-size:1rem; color:var(--gold); margin:0; }
 
 /* ── OAuth buttons ──────────────────────────────────── */
 .login-oauth-btns {

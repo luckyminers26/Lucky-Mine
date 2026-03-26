@@ -104,7 +104,7 @@ export default function Login() {
         <div className="login-card__header login-card__header--center">
           <img src={logo} alt="Lucky Mine" width="56" className="login-logo-img" />
           <h1 className="login-title">Lucky Mine</h1>
-          <p className="login-subtitle">Earn and play lckm</p>
+          <p className="login-subtitle">Earn and play LCKM</p>
         </div>
 
         {error && (
