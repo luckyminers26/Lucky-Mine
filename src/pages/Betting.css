@@ -883,7 +883,7 @@
 .bet-winners__item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+
   padding: 0.65rem 0.9rem;
   background: rgba(255,255,255,0.03);
   border: 1px solid var(--border);
@@ -912,6 +912,9 @@
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bet-winners__amount {
@@ -1002,7 +1005,6 @@
 .bet-wager-ranking .bet-winners__item {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
 }
 
 .bet-winners__item--me {
@@ -1011,11 +1013,9 @@
 }
 
 .bet-winners__wager {
-  flex: 1;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.72rem;
   color: #9090a8;
-  text-align: right;
 }
 
 .bet-winners__pct {
